@@ -1,0 +1,29 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.template-preview {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+#resultText {
+  background-color: #fff;
+  font-size: 1rem;
+}
+
+.drag-handle {
+  cursor: grab;
+  font-size: 1.2rem;
+  color: #adb5bd;
+  user-select: none;
+}
+
+.drag-handle:hover {
+  color: #495057;
+}
+
+.sortable-ghost {
+  opacity: 0.4;
+  background-color: #e9ecef;
+}

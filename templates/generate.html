@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">Generate: {{ template.name }}</h2>
+
+{% if result is not none %}
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Generated Feedback</strong>
+    <button class="btn btn-sm btn-outline-primary" id="copyBtn"
+            onclick="copyToClipboard()">Copy to Clipboard</button>
+  </div>
+  <div class="card-body">
+    <textarea class="form-control" id="resultText" rows="6" readonly>{{ result }}</textarea>
+  </div>
+</div>
+<a href="{{ url_for('generate_form', template_id=template._id) }}"
+   class="btn btn-secondary mb-4">Generate Another</a>
+<hr>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">Fill in Placeholders</div>
+  <div class="card-body">
+    <p class="text-muted small mb-3">Template: <em>{{ template.body }}</em></p>
+
+    <form method="post"
+          action="{{ url_for('generate_feedback', template_id=template._id) }}">
+      {% for ph in template.placeholders %}
+      <div class="mb-3">
+        <label for="ph_{{ ph.name }}" class="form-label">
+          {{ ph.name }}
+        </label>
+
+        {% if ph.input_type == "dropdown" and ph.options %}
+        <select class="form-select" id="ph_{{ ph.name }}" name="ph_{{ ph.name }}" required>
+          <option value="" disabled selected>Select…</option>
+          {% for opt in ph.options %}
+          <option value="{{ opt }}">{{ opt }}</option>
+          {% endfor %}
+        </select>
+        {% else %}
+        <input type="text" class="form-control" id="ph_{{ ph.name }}"
+               name="ph_{{ ph.name }}" required
+               placeholder="Enter {{ ph.name }}">
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-success">Generate Feedback</button>
+      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Back</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

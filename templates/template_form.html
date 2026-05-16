@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">{{ "Edit" if template else "New" }} Template</h2>
+
+<form method="post"
+      action="{{ url_for('update_template', template_id=template._id) if template else url_for('create_template') }}"
+      id="templateForm">
+
+  <div class="mb-3">
+    <label for="name" class="form-label">Template Name</label>
+    <input type="text" class="form-control" id="name" name="name"
+           value="{{ template.name if template else '' }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="body" class="form-label">Template Body</label>
+    <textarea class="form-control" id="body" name="body" rows="6" required
+              placeholder='e.g. Hello, {name}. {assessment} work on your discussion.'>{{ template.body if template else '' }}</textarea>
+    <div class="form-text">
+      Use <code>{placeholder_name}</code> for replaceable fields.
+    </div>
+  </div>
+
+  <hr>
+  <h5>Placeholder Configuration</h5>
+  <p class="text-muted small">Placeholders detected from the body appear below. Configure each as freeform text or a dropdown with options.</p>
+
+  <div id="placeholderConfig">
+    <!-- JS populates this -->
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">
+      {{ "Update" if template else "Create" }} Template
+    </button>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Pass existing placeholder config (for edit mode) to JS
+  const existingPlaceholders = {{ template.placeholders | tojson | safe if template else '[]' }};
+  initPlaceholderDetection(existingPlaceholders);
+</script>
+{% endblock %}
