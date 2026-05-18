@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(gcloud run services list *)",
+      "Bash(gcloud projects describe 335892261145 *)",
+      "Bash(gcloud run services describe *)",
+      "Bash(gcloud run deploy feedback-generator *)"
+    ]
+  }
+}
