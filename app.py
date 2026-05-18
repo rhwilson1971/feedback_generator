@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime, timezone
 
@@ -7,7 +8,7 @@ from flask import Flask, flash, jsonify, redirect, render_template, request, url
 from database import get_templates_collection
 
 app = Flask(__name__)
-app.secret_key = "feedback-generator-secret-key"
+app.secret_key = os.environ.get("SECRET_KEY", "feedback-generator-secret-key")
 
 PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
 
@@ -175,4 +176,4 @@ def reorder_templates():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
