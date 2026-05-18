@@ -1,29 +1,370 @@
+/* ── Design Tokens ─────────────────────────────────────── */
+:root {
+  --bg-primary:    #37353E;
+  --bg-surface:    #44444E;
+  --bg-elevated:   #4f4d59;
+  --accent:        #715A5A;
+  --accent-hover:  #8a6e6e;
+  --accent-muted:  rgba(113, 90, 90, 0.15);
+  --text-primary:  #D3DAD9;
+  --text-muted:    rgba(211, 218, 217, 0.55);
+  --border-color:  rgba(211, 218, 217, 0.10);
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-md:     0 4px 12px rgba(0, 0, 0, 0.40);
+  --radius:        8px;
+  --transition:    150ms ease;
+}
+
+/* ── Base ───────────────────────────────────────────────── */
 body {
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ── Custom scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb        { background: var(--bg-elevated); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: var(--accent); }
+
+/* ── Typography ─────────────────────────────────────────── */
+body { font-family: 'Inter', sans-serif; }
+
+h1, h2, h3, h4, h5, h6 { color: var(--text-primary); }
+
+h2.mb-3 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem !important;
+}
+
+.text-muted { color: var(--text-muted) !important; }
+
+code {
+  background-color: rgba(211, 218, 217, 0.08);
+  color: #a8c0be;
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+hr { border-color: var(--border-color); opacity: 1; }
+
+/* ── Navbar ─────────────────────────────────────────────── */
+.bg-app {
+  background-color: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary) !important;
+}
+
+.nav-link {
+  color: var(--text-muted) !important;
+  font-size: 0.9rem;
+  transition: color var(--transition);
+}
+
+.nav-link:hover { color: var(--text-primary) !important; }
+
+/* ── Cards ──────────────────────────────────────────────── */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 500;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+.card-body { padding: 1.25rem; }
+
+.card-title { color: var(--text-primary); }
+
+/* ── List Group ─────────────────────────────────────────── */
+.list-group-item {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  transition: background-color var(--transition);
+  padding: 1rem 1.25rem;
+}
+
+.list-group-item:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.list-group-item:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.list-group-item:hover {
+  background-color: var(--bg-elevated);
+}
+
+/* ── Template preview text ───────────────────────────────── */
 .template-preview {
-  font-family: monospace;
-  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
-#resultText {
-  background-color: #fff;
-  font-size: 1rem;
-}
-
+/* ── Drag handle ─────────────────────────────────────────── */
 .drag-handle {
   cursor: grab;
-  font-size: 1.2rem;
-  color: #adb5bd;
+  font-size: 1.1rem;
+  color: var(--text-muted);
   user-select: none;
+  transition: color var(--transition);
 }
 
-.drag-handle:hover {
-  color: #495057;
-}
+.drag-handle:hover  { color: var(--accent); }
+.drag-handle:active { cursor: grabbing; }
 
 .sortable-ghost {
-  opacity: 0.4;
-  background-color: #e9ecef;
+  opacity: 0.3;
+  background-color: var(--accent-muted);
 }
+
+/* ── Empty state ─────────────────────────────────────────── */
+.text-center.py-5 p { color: var(--text-muted); }
+
+/* ── Form labels ─────────────────────────────────────────── */
+.form-label {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.form-text { color: var(--text-muted); font-size: 0.82rem; }
+
+/* ── Text inputs + textareas ─────────────────────────────── */
+.form-control {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: calc(var(--radius) - 2px);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-control:focus {
+  background-color: var(--bg-primary);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(113, 90, 90, 0.20);
+  outline: none;
+}
+
+.form-control::placeholder { color: var(--text-muted); }
+
+.form-control[readonly] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: default;
+}
+
+/* ── Select ──────────────────────────────────────────────── */
+.form-select {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: calc(var(--radius) - 2px);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23D3DAD9' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-select:focus {
+  background-color: var(--bg-primary);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(113, 90, 90, 0.20);
+  outline: none;
+}
+
+.form-select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* ── Radio / Checkbox ────────────────────────────────────── */
+.form-check-input {
+  background-color: var(--bg-primary);
+  border-color: rgba(211, 218, 217, 0.30);
+}
+
+.form-check-input:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px rgba(113, 90, 90, 0.20);
+  border-color: var(--accent);
+}
+
+.form-check-label { color: var(--text-primary); font-size: 0.9rem; }
+
+/* ── Result textarea ─────────────────────────────────────── */
+#resultText {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  border-color: var(--border-color);
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* ── Button base ─────────────────────────────────────────── */
+.btn {
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: calc(var(--radius) - 2px);
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition), box-shadow var(--transition);
+}
+
+/* Primary (accent mauve) */
+.btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(113, 90, 90, 0.25);
+}
+
+/* Success (muted teal-green, readable on dark) */
+.btn-success {
+  background-color: #4e7268;
+  border-color: #4e7268;
+  color: var(--text-primary);
+}
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #5d877c;
+  border-color: #5d877c;
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(78, 114, 104, 0.25);
+}
+
+/* Secondary */
+.btn-secondary {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #5a586a;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Outline secondary */
+.btn-outline-secondary {
+  border-color: rgba(211, 218, 217, 0.25);
+  color: var(--text-muted);
+  background-color: transparent;
+}
+.btn-outline-secondary:hover {
+  background-color: var(--bg-elevated);
+  border-color: rgba(211, 218, 217, 0.35);
+  color: var(--text-primary);
+}
+
+/* Outline primary */
+.btn-outline-primary {
+  border-color: var(--accent);
+  color: #c49e9e;
+  background-color: transparent;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Outline danger */
+.btn-outline-danger {
+  border-color: rgba(180, 80, 80, 0.40);
+  color: rgba(210, 110, 110, 0.80);
+  background-color: transparent;
+}
+.btn-outline-danger:hover {
+  background-color: rgba(180, 80, 80, 0.15);
+  border-color: rgba(180, 80, 80, 0.60);
+  color: rgba(230, 130, 130, 0.95);
+}
+
+/* Vertical button group (template list actions) */
+.btn-group-vertical .btn { border-radius: 0; }
+.btn-group-vertical .btn:first-child { border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0; }
+.btn-group-vertical .btn:last-child  { border-radius: 0 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px); }
+
+/* ── Alerts / Flash messages ─────────────────────────────── */
+.alert {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+}
+
+.alert-success { border-left: 3px solid #4e7268; }
+.alert-danger  { border-left: 3px solid rgba(180, 80, 80, 0.70); }
+.alert-warning { border-left: 3px solid #9e8a4a; }
+.alert-info    { border-left: 3px solid var(--accent); }
+
+.btn-close { filter: invert(1) opacity(0.55); }
+.btn-close:hover { filter: invert(1) opacity(0.90); }
+
+/* ── Placeholder config cards (template form JS) ─────────── */
+#placeholderConfig .card {
+  border-color: rgba(211, 218, 217, 0.08);
+}
+
+#placeholderConfig .card-body { padding: 1rem 1.25rem; }
+
+.card-title code { font-size: 0.88rem; }
+
+/* ── "No placeholders" italic message ───────────────────── */
+#placeholderConfig .fst-italic { color: var(--text-muted); }
+
+/* ── Section divider (Placeholder Configuration heading) ─── */
+h5 { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+
+/* ── Small helper text in template form ─────────────────── */
+.form-text code {
+  background-color: rgba(211, 218, 217, 0.08);
+  color: #a8c0be;
+}
+
+/* ── Generate page: template body preview ────────────────── */
+.text-muted.small em { color: var(--text-muted); font-style: italic; }
+
+/* ── "Generate Another" spacing ─────────────────────────── */
+a.btn.btn-secondary.mb-4 { margin-bottom: 1.5rem !important; }
+
+/* ── Smooth page-level padding ───────────────────────────── */
+main.container { padding-top: 0.5rem; padding-bottom: 3rem; }
