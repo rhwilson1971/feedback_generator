@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">{{ "Edit" if container else "New" }} Container</h2>
+
+<form method="post"
+      action="{{ url_for('update_container', container_id=container._id) if container else url_for('create_container') }}">
+
+  <div class="mb-3">
+    <label for="name" class="form-label">Container Name</label>
+    <input type="text" class="form-control" id="name" name="name"
+           value="{{ container.name if container else '' }}" required
+           placeholder="e.g. Discussion Board Feedback">
+  </div>
+
+  <div class="mb-3">
+    <label for="category" class="form-label">Category</label>
+    <input type="text" class="form-control" id="category" name="category"
+           list="categoryList"
+           value="{{ container.category if container else '' }}"
+           placeholder="Default">
+    <datalist id="categoryList">
+      {% for cat in categories %}
+      <option value="{{ cat }}">
+      {% endfor %}
+    </datalist>
+    <div class="form-text">
+      Pick an existing category or type a new one. Defaults to "Default" if left blank.
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">
+      {{ "Update" if container else "Create" }} Container
+    </button>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,33 +1,122 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="mb-3">Your Templates</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0" style="border-bottom:none; padding-bottom:0; margin-bottom:0 !important;">Your Templates</h2>
+  <a href="{{ url_for('new_container') }}" class="btn btn-outline-secondary btn-sm">+ New Container</a>
+</div>
 
-{% if templates %}
-<div class="list-group" id="templateList">
-  {% for tpl in templates %}
-  <div class="list-group-item d-flex justify-content-between align-items-start"
-       data-id="{{ tpl._id }}">
-    <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
-    <div class="me-auto">
-      <h5 class="mb-1">{{ tpl.name }}</h5>
-      <p class="mb-1 text-muted small template-preview">{{ tpl.body[:120] }}{% if tpl.body|length > 120 %}&hellip;{% endif %}</p>
-      <small class="text-muted">
-        {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
-      </small>
-    </div>
-    <div class="btn-group-vertical btn-group-sm ms-3">
-      <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
-         class="btn btn-success">Generate</a>
-      <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
-         class="btn btn-outline-secondary">Edit</a>
-      <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
-            onsubmit="return confirm('Delete this template?')">
-        <button class="btn btn-outline-danger w-100">Delete</button>
-      </form>
+{% if containers or uncategorized %}
+<div class="accordion" id="containerList">
+  {% for ctr in containers %}
+  {% set tpls = grouped.get(ctr._id, []) %}
+  <div class="accordion-item" data-id="{{ ctr._id }}">
+    <h2 class="accordion-header">
+      <div class="accordion-button-wrap d-flex align-items-center">
+        <span class="container-drag-handle me-2" title="Drag to reorder">&#9776;</span>
+        <button class="accordion-button collapsed flex-grow-1"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapse-{{ ctr._id }}"
+                aria-expanded="false"
+                aria-controls="collapse-{{ ctr._id }}">
+          {{ ctr.name }}
+          <span class="category-badge ms-2">{{ ctr.category }}</span>
+          <span class="template-count ms-2">{{ tpls|length }} template{{ "s" if tpls|length != 1 }}</span>
+        </button>
+        <div class="btn-group btn-group-sm ms-2 container-actions">
+          <a href="{{ url_for('edit_container', container_id=ctr._id) }}"
+             class="btn btn-outline-secondary" title="Edit container">Edit</a>
+          <form method="post" action="{{ url_for('delete_container', container_id=ctr._id) }}"
+                onsubmit="return confirm('Delete this container? Its templates will become uncategorized.')"
+                class="d-inline">
+            <button class="btn btn-outline-danger" title="Delete container">Delete</button>
+          </form>
+        </div>
+      </div>
+    </h2>
+    <div id="collapse-{{ ctr._id }}" class="accordion-collapse collapse"
+         data-bs-parent="#containerList">
+      <div class="accordion-body">
+        {% if tpls %}
+        <div class="list-group template-list" data-container-id="{{ ctr._id }}">
+          {% for tpl in tpls %}
+          <div class="list-group-item d-flex justify-content-between align-items-start"
+               data-id="{{ tpl._id }}">
+            <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
+            <div class="me-auto">
+              <h5 class="mb-1">{{ tpl.name }}</h5>
+              <p class="mb-1 text-muted small template-preview">{{ tpl.body[:120] }}{% if tpl.body|length > 120 %}&hellip;{% endif %}</p>
+              <small class="text-muted">
+                {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
+              </small>
+            </div>
+            <div class="d-flex flex-column gap-1 ms-3">
+              <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
+                 class="btn btn-success btn-sm">Generate</a>
+              <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
+                 class="btn btn-outline-secondary btn-sm">Edit</a>
+              <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
+                    onsubmit="return confirm('Delete this template?')">
+                <button class="btn btn-outline-danger btn-sm w-100">Delete</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted fst-italic mb-0">No templates in this container yet.</p>
+        {% endif %}
+      </div>
     </div>
   </div>
   {% endfor %}
+
+  {% if uncategorized %}
+  <div class="accordion-item no-drag">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapse-uncategorized"
+              aria-expanded="false"
+              aria-controls="collapse-uncategorized">
+        Uncategorized
+        <span class="template-count ms-2">{{ uncategorized|length }} template{{ "s" if uncategorized|length != 1 }}</span>
+      </button>
+    </h2>
+    <div id="collapse-uncategorized" class="accordion-collapse collapse"
+         data-bs-parent="#containerList">
+      <div class="accordion-body">
+        <div class="list-group template-list" data-container-id="">
+          {% for tpl in uncategorized %}
+          <div class="list-group-item d-flex justify-content-between align-items-start"
+               data-id="{{ tpl._id }}">
+            <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
+            <div class="me-auto">
+              <h5 class="mb-1">{{ tpl.name }}</h5>
+              <p class="mb-1 text-muted small template-preview">{{ tpl.body[:120] }}{% if tpl.body|length > 120 %}&hellip;{% endif %}</p>
+              <small class="text-muted">
+                {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
+              </small>
+            </div>
+            <div class="d-flex flex-column gap-1 ms-3">
+              <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
+                 class="btn btn-success btn-sm">Generate</a>
+              <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
+                 class="btn btn-outline-secondary btn-sm">Edit</a>
+              <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
+                    onsubmit="return confirm('Delete this template?')">
+                <button class="btn btn-outline-danger btn-sm w-100">Delete</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% else %}
 <div class="text-center py-5">
@@ -39,6 +128,7 @@
 
 {% block scripts %}
 <script>
+  initContainerReorder();
   initTemplateReorder();
 </script>
 {% endblock %}

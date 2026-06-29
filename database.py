@@ -20,3 +20,7 @@ def get_db():
 
 def get_templates_collection():
     return get_db()["templates"]
+
+
+def get_containers_collection():
+    return get_db()["containers"]

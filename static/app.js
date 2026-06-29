@@ -95,24 +95,49 @@ function initPlaceholderDetection(existing) {
 }
 
 // ---------------------------------------------------------------------------
-// Template list reordering
+// Container reordering
 // ---------------------------------------------------------------------------
 
-function initTemplateReorder() {
-  const list = document.getElementById("templateList");
+function initContainerReorder() {
+  const list = document.getElementById("containerList");
   if (!list) return;
 
   Sortable.create(list, {
-    handle: ".drag-handle",
+    handle: ".container-drag-handle",
     animation: 150,
+    filter: ".no-drag",
     onEnd: function () {
-      const order = Array.from(list.children).map((el) => el.dataset.id);
-      fetch("/templates/reorder", {
+      const order = Array.from(
+        list.querySelectorAll(".accordion-item:not(.no-drag)")
+      ).map((el) => el.dataset.id);
+      fetch("/containers/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(order),
       });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Template list reordering (scoped per accordion section)
+// ---------------------------------------------------------------------------
+
+function initTemplateReorder() {
+  const lists = document.querySelectorAll(".template-list");
+  lists.forEach((list) => {
+    Sortable.create(list, {
+      handle: ".drag-handle",
+      animation: 150,
+      onEnd: function () {
+        const order = Array.from(list.children).map((el) => el.dataset.id);
+        fetch("/templates/reorder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(order),
+        });
+      },
+    });
   });
 }
 
