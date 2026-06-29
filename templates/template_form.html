@@ -14,6 +14,17 @@
   </div>
 
   <div class="mb-3">
+    <label for="container_id" class="form-label">Container</label>
+    <select class="form-select" id="container_id" name="container_id">
+      <option value="">None (Uncategorized)</option>
+      {% for c in containers %}
+      <option value="{{ c._id }}"
+              {% if template and template.container_id == c._id %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
     <label for="body" class="form-label">Template Body</label>
     <textarea class="form-control" id="body" name="body" rows="6" required
               placeholder='e.g. Hello, {name}. {assessment} work on your discussion.'>{{ template.body if template else '' }}</textarea>

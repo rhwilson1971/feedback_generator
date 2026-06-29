@@ -366,5 +366,82 @@ h5 { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
 /* ── "Generate Another" spacing ─────────────────────────── */
 a.btn.btn-secondary.mb-4 { margin-bottom: 1.5rem !important; }
 
+/* ── Accordion (container grouping) ──────────────────────── */
+.accordion { --bs-accordion-bg: transparent; --bs-accordion-border-color: var(--border-color); }
+
+.accordion-item {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius) !important;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.accordion-button-wrap {
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 0.6rem 1rem;
+}
+
+.accordion-button {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.accordion-button::after {
+  filter: invert(1) opacity(0.5);
+}
+
+.accordion-button:focus { box-shadow: none !important; }
+
+.accordion-body {
+  background-color: var(--bg-surface);
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Category badge */
+.category-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  background-color: var(--accent-muted);
+  color: var(--accent-hover);
+  padding: 0.15em 0.55em;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Template count inside accordion header */
+.template-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Container drag handle */
+.container-drag-handle {
+  cursor: grab;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  user-select: none;
+  transition: color var(--transition);
+}
+
+.container-drag-handle:hover  { color: var(--accent); }
+.container-drag-handle:active { cursor: grabbing; }
+
+/* Container action buttons in header */
+.container-actions { flex-shrink: 0; }
+.container-actions .btn { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
+
+/* Uncategorized section (no drag) */
+.accordion-item.no-drag .accordion-button {
+  padding-left: 2.4rem; /* align with draggable items that have a handle */
+}
+
 /* ── Smooth page-level padding ───────────────────────────── */
 main.container { padding-top: 0.5rem; padding-bottom: 3rem; }
