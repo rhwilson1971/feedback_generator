@@ -152,17 +152,26 @@ function toggleOptions(name) {
 // Template name filter
 // ---------------------------------------------------------------------------
 
+/**
+ * Check whether a template name contains a case-insensitive filter query.
+ *
+ * @param {string} name - Template name to search.
+ * @param {string} query - Filter text entered by the user.
+ * @returns {boolean} Whether the template matches the query.
+ */
 function templateMatchesFilter(name, query) {
   if (!query) return true;
   return name.toLowerCase().includes(query.toLowerCase());
 }
 
+/** Initialize template-name filtering when its controls are present. */
 function initTemplateFilter() {
   const input = document.getElementById("templateFilter");
   const clearBtn = document.getElementById("clearFilterBtn");
   const noResults = document.getElementById("noFilterResults");
   if (!input || !clearBtn || !noResults) return;
 
+  /** Restore all accordion sections to their collapsed state. */
   function collapseAll() {
     document
       .querySelectorAll(".accordion-collapse")
@@ -173,6 +182,11 @@ function initTemplateFilter() {
     });
   }
 
+  /**
+   * Expand an accordion item so its matching templates are visible.
+   *
+   * @param {Element} accordionItem - Accordion item containing a match.
+   */
   function expandContainer(accordionItem) {
     const collapseEl = accordionItem.querySelector(".accordion-collapse");
     const button = accordionItem.querySelector(".accordion-button");
@@ -183,6 +197,7 @@ function initTemplateFilter() {
     }
   }
 
+  /** Apply the current query to template rows and their containers. */
   function applyFilter() {
     const query = input.value.trim();
     const hasQuery = query.length > 0;
@@ -222,12 +237,15 @@ function initTemplateFilter() {
     noResults.classList.toggle("d-none", anyMatch);
   }
 
-  input.addEventListener("input", applyFilter);
-  clearBtn.addEventListener("click", () => {
+  /** Clear the query, restore the template list, and return focus. */
+  function clearFilter() {
     input.value = "";
     applyFilter();
     input.focus();
-  });
+  }
+
+  input.addEventListener("input", applyFilter);
+  clearBtn.addEventListener("click", clearFilter);
 }
 
 if (typeof module !== "undefined" && module.exports) {

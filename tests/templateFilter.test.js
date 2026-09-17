@@ -4,9 +4,11 @@ const { JSDOM } = require("jsdom");
 
 const { templateMatchesFilter, initTemplateFilter } = require("../static/app.js");
 
-// Mirrors the accordion markup rendered by templates/index.html: two
-// containers (one with a matching template, one without) plus an
-// "Uncategorized" section, all wired to the filter controls.
+/**
+ * Build accordion markup matching the template-list page for DOM tests.
+ *
+ * @returns {JSDOM} DOM containing filter controls and template containers.
+ */
 function buildFixture() {
   const dom = new JSDOM(`<!DOCTYPE html><body>
     <input type="text" id="templateFilter">
@@ -42,6 +44,12 @@ function buildFixture() {
   return dom;
 }
 
+/**
+ * Collect commonly used elements and query helpers from a test DOM.
+ *
+ * @param {JSDOM} dom - DOM returned by {@link buildFixture}.
+ * @returns {object} Filter controls and template lookup helpers.
+ */
 function getters(dom) {
   const doc = dom.window.document;
   return {
@@ -54,6 +62,13 @@ function getters(dom) {
   };
 }
 
+/**
+ * Enter a filter value and dispatch the same event as browser input.
+ *
+ * @param {JSDOM} dom - DOM that owns the input element.
+ * @param {HTMLInputElement} input - Template filter input.
+ * @param {string} value - Filter value to enter.
+ */
 function type(dom, input, value) {
   input.value = value;
   input.dispatchEvent(new dom.window.Event("input"));
