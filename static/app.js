@@ -147,3 +147,107 @@ function toggleOptions(name) {
     ? "block"
     : "none";
 }
+
+// ---------------------------------------------------------------------------
+// Template name filter
+// ---------------------------------------------------------------------------
+
+/**
+ * Check whether a template name contains a case-insensitive filter query.
+ *
+ * @param {string} name - Template name to search.
+ * @param {string} query - Filter text entered by the user.
+ * @returns {boolean} Whether the template matches the query.
+ */
+function templateMatchesFilter(name, query) {
+  if (!query) return true;
+  return name.toLowerCase().includes(query.toLowerCase());
+}
+
+/** Initialize template-name filtering when its controls are present. */
+function initTemplateFilter() {
+  const input = document.getElementById("templateFilter");
+  const clearBtn = document.getElementById("clearFilterBtn");
+  const noResults = document.getElementById("noFilterResults");
+  if (!input || !clearBtn || !noResults) return;
+
+  /** Restore all accordion sections to their collapsed state. */
+  function collapseAll() {
+    document
+      .querySelectorAll(".accordion-collapse")
+      .forEach((el) => el.classList.remove("show"));
+    document.querySelectorAll(".accordion-button").forEach((btn) => {
+      btn.classList.add("collapsed");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  /**
+   * Expand an accordion item so its matching templates are visible.
+   *
+   * @param {Element} accordionItem - Accordion item containing a match.
+   */
+  function expandContainer(accordionItem) {
+    const collapseEl = accordionItem.querySelector(".accordion-collapse");
+    const button = accordionItem.querySelector(".accordion-button");
+    if (collapseEl) collapseEl.classList.add("show");
+    if (button) {
+      button.classList.remove("collapsed");
+      button.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  /** Apply the current query to template rows and their containers. */
+  function applyFilter() {
+    const query = input.value.trim();
+    const hasQuery = query.length > 0;
+    clearBtn.classList.toggle("d-none", !hasQuery);
+
+    if (!hasQuery) {
+      document
+        .querySelectorAll(".list-group-item[data-name]")
+        .forEach((row) => row.classList.remove("d-none"));
+      document
+        .querySelectorAll(".accordion-item")
+        .forEach((item) => item.classList.remove("d-none"));
+      collapseAll();
+      noResults.classList.add("d-none");
+      return;
+    }
+
+    let anyMatch = false;
+
+    document.querySelectorAll(".accordion-item").forEach((item) => {
+      const rows = item.querySelectorAll(".list-group-item[data-name]");
+      let itemHasMatch = false;
+
+      rows.forEach((row) => {
+        const matches = templateMatchesFilter(row.dataset.name, query);
+        row.classList.toggle("d-none", !matches);
+        if (matches) itemHasMatch = true;
+      });
+
+      item.classList.toggle("d-none", !itemHasMatch);
+      if (itemHasMatch) {
+        expandContainer(item);
+        anyMatch = true;
+      }
+    });
+
+    noResults.classList.toggle("d-none", anyMatch);
+  }
+
+  /** Clear the query, restore the template list, and return focus. */
+  function clearFilter() {
+    input.value = "";
+    applyFilter();
+    input.focus();
+  }
+
+  input.addEventListener("input", applyFilter);
+  clearBtn.addEventListener("click", clearFilter);
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { templateMatchesFilter, initTemplateFilter };
+}

@@ -7,6 +7,13 @@
 </div>
 
 {% if containers or uncategorized %}
+<div class="d-flex gap-2 mb-3">
+  <input type="text" id="templateFilter" class="form-control" placeholder="Filter by template name..."
+         autocomplete="off">
+  <button type="button" id="clearFilterBtn" class="btn btn-outline-secondary d-none">Clear</button>
+</div>
+<p id="noFilterResults" class="text-muted fst-italic d-none">No templates match your filter.</p>
+
 <div class="accordion" id="containerList">
   {% for ctr in containers %}
   {% set tpls = grouped.get(ctr._id, []) %}
@@ -42,7 +49,7 @@
         <div class="list-group template-list" data-container-id="{{ ctr._id }}">
           {% for tpl in tpls %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
-               data-id="{{ tpl._id }}">
+               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -91,7 +98,7 @@
         <div class="list-group template-list" data-container-id="">
           {% for tpl in uncategorized %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
-               data-id="{{ tpl._id }}">
+               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -130,5 +137,6 @@
 <script>
   initContainerReorder();
   initTemplateReorder();
+  initTemplateFilter();
 </script>
 {% endblock %}
