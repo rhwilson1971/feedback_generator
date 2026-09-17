@@ -147,3 +147,89 @@ function toggleOptions(name) {
     ? "block"
     : "none";
 }
+
+// ---------------------------------------------------------------------------
+// Template name filter
+// ---------------------------------------------------------------------------
+
+function templateMatchesFilter(name, query) {
+  if (!query) return true;
+  return name.toLowerCase().includes(query.toLowerCase());
+}
+
+function initTemplateFilter() {
+  const input = document.getElementById("templateFilter");
+  const clearBtn = document.getElementById("clearFilterBtn");
+  const noResults = document.getElementById("noFilterResults");
+  if (!input || !clearBtn || !noResults) return;
+
+  function collapseAll() {
+    document
+      .querySelectorAll(".accordion-collapse")
+      .forEach((el) => el.classList.remove("show"));
+    document.querySelectorAll(".accordion-button").forEach((btn) => {
+      btn.classList.add("collapsed");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function expandContainer(accordionItem) {
+    const collapseEl = accordionItem.querySelector(".accordion-collapse");
+    const button = accordionItem.querySelector(".accordion-button");
+    if (collapseEl) collapseEl.classList.add("show");
+    if (button) {
+      button.classList.remove("collapsed");
+      button.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  function applyFilter() {
+    const query = input.value.trim();
+    const hasQuery = query.length > 0;
+    clearBtn.classList.toggle("d-none", !hasQuery);
+
+    if (!hasQuery) {
+      document
+        .querySelectorAll(".list-group-item[data-name]")
+        .forEach((row) => row.classList.remove("d-none"));
+      document
+        .querySelectorAll(".accordion-item")
+        .forEach((item) => item.classList.remove("d-none"));
+      collapseAll();
+      noResults.classList.add("d-none");
+      return;
+    }
+
+    let anyMatch = false;
+
+    document.querySelectorAll(".accordion-item").forEach((item) => {
+      const rows = item.querySelectorAll(".list-group-item[data-name]");
+      let itemHasMatch = false;
+
+      rows.forEach((row) => {
+        const matches = templateMatchesFilter(row.dataset.name, query);
+        row.classList.toggle("d-none", !matches);
+        if (matches) itemHasMatch = true;
+      });
+
+      item.classList.toggle("d-none", !itemHasMatch);
+      if (itemHasMatch) {
+        expandContainer(item);
+        anyMatch = true;
+      }
+    });
+
+    noResults.classList.toggle("d-none", anyMatch);
+  }
+
+  input.addEventListener("input", applyFilter);
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    applyFilter();
+    input.focus();
+  });
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { templateMatchesFilter, initTemplateFilter };
+}

@@ -1,0 +1,27 @@
+{
+  "name": "feedback_generator",
+  "version": "1.0.0",
+  "description": "A web app for creating reusable feedback templates with replaceable placeholders. Designed for teachers and anyone who writes repetitive personalized feedback.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhwilson1971/feedback_generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rhwilson1971/feedback_generator/issues"
+  },
+  "homepage": "https://github.com/rhwilson1971/feedback_generator#readme",
+  "devDependencies": {
+    "jsdom": "^30.1.0"
+  }
+}
