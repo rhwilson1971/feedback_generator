@@ -1,16 +1,19 @@
 {% extends "base.html" %}
+{% from "_macros.html" import autofill_guard %}
 
 {% block content %}
 <h2 class="mb-3">{{ "Edit" if container else "New" }} Container</h2>
 
 <form method="post"
-      action="{{ url_for('update_container', container_id=container._id) if container else url_for('create_container') }}">
+      action="{{ url_for('update_container', container_id=container._id) if container else url_for('create_container') }}"
+      {{ autofill_guard(settings) }}>
 
   <div class="mb-3">
     <label for="name" class="form-label">Container Name</label>
     <input type="text" class="form-control" id="name" name="name"
            value="{{ container.name if container else '' }}" required
-           placeholder="e.g. Discussion Board Feedback">
+           placeholder="e.g. Discussion Board Feedback"
+           {{ autofill_guard(settings) }}>
   </div>
 
   <div class="mb-3">
@@ -18,7 +21,8 @@
     <input type="text" class="form-control" id="category" name="category"
            list="categoryList"
            value="{{ container.category if container else '' }}"
-           placeholder="Default">
+           placeholder="Default"
+           {{ autofill_guard(settings) }}>
     <datalist id="categoryList">
       {% for cat in categories %}
       <option value="{{ cat }}">

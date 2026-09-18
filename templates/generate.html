@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import autofill_guard %}
 
 {% block content %}
 <h2 class="mb-3">Generate: {{ template.name }}</h2>
@@ -25,7 +26,8 @@
     <p class="text-muted small mb-3">Template: <em>{{ template.body }}</em></p>
 
     <form method="post"
-          action="{{ url_for('generate_feedback', template_id=template._id) }}">
+          action="{{ url_for('generate_feedback', template_id=template._id) }}"
+          {{ autofill_guard(settings) }}>
       {% for ph in template.placeholders %}
       <div class="mb-3">
         <label for="ph_{{ ph.name }}" class="form-label">
@@ -42,7 +44,8 @@
         {% else %}
         <input type="text" class="form-control" id="ph_{{ ph.name }}"
                name="ph_{{ ph.name }}" required
-               placeholder="Enter {{ ph.name }}">
+               placeholder="Enter {{ ph.name }}"
+               {{ autofill_guard(settings) }}>
         {% endif %}
       </div>
       {% endfor %}

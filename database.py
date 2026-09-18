@@ -24,3 +24,7 @@ def get_templates_collection():
 
 def get_containers_collection():
     return get_db()["containers"]
+
+
+def get_settings_collection():
+    return get_db()["settings"]

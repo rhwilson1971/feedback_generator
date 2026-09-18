@@ -1,0 +1,10 @@
+{#
+  Emit attributes that opt a field out of browser and password-manager
+  autofill. Renders nothing unless the setting is enabled.
+  Usage: <input type="text" ... {{ autofill_guard(settings) }}>
+#}
+{% macro autofill_guard(settings) -%}
+  {%- if settings.disable_password_manager_autofill -%}
+    autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore="true" data-protonpass-ignore="true" data-form-type="other"
+  {%- endif -%}
+{%- endmacro %}

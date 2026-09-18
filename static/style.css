@@ -221,6 +221,31 @@ hr { border-color: var(--border-color); opacity: 1; }
 
 .form-check-label { color: var(--text-primary); font-size: 0.9rem; }
 
+/* Bootstrap draws the switch knob from an inline SVG whose fill is a literal
+   color, so it can't reference a CSS var. These hex values mirror
+   --text-primary (#D3DAD9, checked) and --text-muted (same hex at 0.55
+   opacity, unchecked) — update both if that token changes. */
+.form-switch .form-check-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23D3DAD9' fill-opacity='0.55'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23D3DAD9'/%3e%3c/svg%3e");
+}
+
+/* ── Settings page ────────────────────────────────────────── */
+.settings-row {
+  padding: 0.75rem 0;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--border-color);
+}
+
+.settings-row .form-text {
+  margin-left: 2.5em;
+}
+
 /* ── Result textarea ─────────────────────────────────────── */
 #resultText {
   background-color: var(--bg-primary);
