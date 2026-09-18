@@ -22,9 +22,17 @@ function copyToClipboard() {
 
 const PLACEHOLDER_RE = /\{(\w+)\}/g;
 
-function initPlaceholderDetection(existing) {
+// Attribute string mirroring the autofill_guard() macro in
+// templates/_macros.html — the ph_options_* textarea is built here in JS, so
+// Jinja can't reach it. Keep this list in sync with the macro's.
+const AUTOFILL_GUARD_ATTRS =
+  'autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore="true" data-protonpass-ignore="true" data-form-type="other"';
+
+function initPlaceholderDetection(existing, autofillGuard) {
   const bodyEl = document.getElementById("body");
   if (!bodyEl) return;
+
+  const guardAttrs = autofillGuard ? AUTOFILL_GUARD_ATTRS : "";
 
   // Build lookup from existing placeholder config (edit mode)
   const existingMap = {};
@@ -81,7 +89,8 @@ function initPlaceholderDetection(existing) {
           <div id="opts_${name}" class="mt-2" style="display: ${!isFreeform ? "block" : "none"}">
             <label class="form-label small">Options (one per line)</label>
             <textarea class="form-control form-control-sm" name="ph_options_${name}"
-                      rows="3" placeholder="Good&#10;Great&#10;Needs improvement">${options}</textarea>
+                      rows="3" placeholder="Good&#10;Great&#10;Needs improvement"
+                      ${guardAttrs}>${options}</textarea>
           </div>
         </div>
       </div>`;

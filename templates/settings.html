@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">Settings</h2>
+
+<form method="post" action="{{ url_for('update_settings') }}">
+  <div class="card mb-4">
+    <div class="card-header">Privacy &amp; Forms</div>
+    <div class="card-body">
+      <div class="form-check form-switch settings-row">
+        <input class="form-check-input" type="checkbox" role="switch"
+               id="disable_password_manager_autofill"
+               name="disable_password_manager_autofill"
+               {% if settings.disable_password_manager_autofill %}checked{% endif %}>
+        <label class="form-check-label" for="disable_password_manager_autofill">
+          Disable password manager autofill
+        </label>
+        <div class="form-text">
+          Stops browsers and password managers (1Password, LastPass, Bitwarden,
+          Proton Pass, Dashlane) from offering saved logins in template,
+          container, and placeholder fields. Your own category suggestions are
+          unaffected.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Save Settings</button>
+  <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Back</a>
+</form>
+{% endblock %}

@@ -5,12 +5,24 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
-from database import get_containers_collection, get_templates_collection
+from database import (
+    get_containers_collection,
+    get_settings_collection,
+    get_templates_collection,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "feedback-generator-secret-key")
 
 PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
+
+SETTINGS_DOC_ID = "app"
+
+# Every setting must have an entry here. get_settings() layers stored values
+# over these, so adding a key never breaks an existing install.
+DEFAULT_SETTINGS = {
+    "disable_password_manager_autofill": False,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -46,6 +58,35 @@ def _build_placeholders_from_form(form, body: str) -> list[dict]:
             "options": options,
         })
     return placeholders
+
+
+def get_settings() -> dict:
+    """Return app settings with stored values layered over the defaults."""
+    stored = get_settings_collection().find_one({"_id": SETTINGS_DOC_ID}) or {}
+    settings = dict(DEFAULT_SETTINGS)
+    for key in DEFAULT_SETTINGS:
+        if key in stored:
+            settings[key] = stored[key]
+    return settings
+
+
+def save_settings(updates: dict) -> None:
+    """Upsert the known settings keys found in `updates`."""
+    changes = {k: v for k, v in updates.items() if k in DEFAULT_SETTINGS}
+    if not changes:
+        return
+    changes["updated_at"] = datetime.now(timezone.utc)
+    get_settings_collection().update_one(
+        {"_id": SETTINGS_DOC_ID},
+        {"$set": changes},
+        upsert=True,
+    )
+
+
+@app.context_processor
+def inject_settings():
+    """Make `settings` available to every template."""
+    return {"settings": get_settings()}
 
 
 # ---------------------------------------------------------------------------
@@ -294,6 +335,26 @@ def reorder_containers():
 
 
 # ---------------------------------------------------------------------------
+# Settings routes
+# ---------------------------------------------------------------------------
+
+@app.route("/settings")
+def settings_page():
+    return render_template("settings.html")
+
+
+@app.route("/settings", methods=["POST"])
+def update_settings():
+    # An unchecked checkbox is absent from the form body, so absence == False.
+    save_settings({
+        "disable_password_manager_autofill":
+            "disable_password_manager_autofill" in request.form,
+    })
+    flash("Settings saved.", "success")
+    return redirect(url_for("settings_page"))
+
+
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5010)))
