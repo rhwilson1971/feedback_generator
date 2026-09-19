@@ -235,7 +235,7 @@ hr { border-color: var(--border-color); opacity: 1; }
 
 /* ── Settings page ────────────────────────────────────────── */
 .settings-row {
-  padding: 0.75rem 0;
+  padding: 0.75rem 0 0.75rem 2.5em; /* keep .form-switch's left gutter for the toggle */
 }
 
 .settings-row + .settings-row {
