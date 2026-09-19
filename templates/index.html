@@ -31,13 +31,13 @@
           <span class="category-badge ms-2">{{ ctr.category }}</span>
           <span class="template-count ms-2">{{ tpls|length }} template{{ "s" if tpls|length != 1 }}</span>
         </button>
-        <div class="btn-group btn-group-sm ms-2 container-actions">
+        <div class="ms-2 container-actions">
           <a href="{{ url_for('edit_container', container_id=ctr._id) }}"
-             class="btn btn-outline-secondary" title="Edit container">Edit</a>
+             class="btn btn-outline-secondary" title="Edit container" aria-label="Edit container"><i class="fa-solid fa-pen-to-square"></i></a>
           <form method="post" action="{{ url_for('delete_container', container_id=ctr._id) }}"
                 onsubmit="return confirm('Delete this container? Its templates will become uncategorized.')"
                 class="d-inline">
-            <button class="btn btn-outline-danger" title="Delete container">Delete</button>
+            <button class="btn btn-outline-danger" title="Delete container" aria-label="Delete container"><i class="fa-solid fa-trash"></i></button>
           </form>
         </div>
       </div>
@@ -62,10 +62,10 @@
               <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
                  class="btn btn-success btn-sm">Generate</a>
               <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
-                 class="btn btn-outline-secondary btn-sm">Edit</a>
+                 class="btn btn-outline-secondary btn-sm" title="Edit template" aria-label="Edit template"><i class="fa-solid fa-pen-to-square"></i></a>
               <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
                     onsubmit="return confirm('Delete this template?')">
-                <button class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                <button class="btn btn-outline-danger btn-sm w-100" title="Delete template" aria-label="Delete template"><i class="fa-solid fa-trash"></i></button>
               </form>
             </div>
           </div>
@@ -111,10 +111,10 @@
               <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
                  class="btn btn-success btn-sm">Generate</a>
               <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
-                 class="btn btn-outline-secondary btn-sm">Edit</a>
+                 class="btn btn-outline-secondary btn-sm" title="Edit template" aria-label="Edit template"><i class="fa-solid fa-pen-to-square"></i></a>
               <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
                     onsubmit="return confirm('Delete this template?')">
-                <button class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                <button class="btn btn-outline-danger btn-sm w-100" title="Delete template" aria-label="Delete template"><i class="fa-solid fa-trash"></i></button>
               </form>
             </div>
           </div>
