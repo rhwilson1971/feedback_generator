@@ -5,6 +5,27 @@
 
 <form method="post" action="{{ url_for('update_settings') }}">
   <div class="card mb-4">
+    <div class="card-header">Appearance</div>
+    <div class="card-body">
+      <div class="settings-row" role="radiogroup" aria-labelledby="theme-label">
+        <div id="theme-label" class="form-label">Theme</div>
+        {% for value, label in [("light", "Light"), ("dark", "Dark"), ("system", "System (match my device)")] %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="theme"
+                 id="theme_{{ value }}" value="{{ value }}"
+                 {% if settings.theme == value %}checked{% endif %}>
+          <label class="form-check-label" for="theme_{{ value }}">{{ label }}</label>
+        </div>
+        {% endfor %}
+        <div class="form-text ms-0">
+          System follows your operating system's light/dark setting and updates
+          automatically when it changes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
     <div class="card-header">Privacy &amp; Forms</div>
     <div class="card-body">
       <div class="form-check form-switch settings-row">

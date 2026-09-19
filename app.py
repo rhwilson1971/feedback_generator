@@ -18,10 +18,13 @@ PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
 
 SETTINGS_DOC_ID = "app"
 
+THEME_CHOICES = ("light", "dark", "system")
+
 # Every setting must have an entry here. get_settings() layers stored values
 # over these, so adding a key never breaks an existing install.
 DEFAULT_SETTINGS = {
     "disable_password_manager_autofill": False,
+    "theme": "system",
 }
 
 
@@ -67,6 +70,8 @@ def get_settings() -> dict:
     for key in DEFAULT_SETTINGS:
         if key in stored:
             settings[key] = stored[key]
+    if settings["theme"] not in THEME_CHOICES:
+        settings["theme"] = DEFAULT_SETTINGS["theme"]
     return settings
 
 
@@ -346,10 +351,14 @@ def settings_page():
 @app.route("/settings", methods=["POST"])
 def update_settings():
     # An unchecked checkbox is absent from the form body, so absence == False.
-    save_settings({
+    updates = {
         "disable_password_manager_autofill":
             "disable_password_manager_autofill" in request.form,
-    })
+    }
+    theme = request.form.get("theme", "")
+    if theme in THEME_CHOICES:
+        updates["theme"] = theme
+    save_settings(updates)
     flash("Settings saved.", "success")
     return redirect(url_for("settings_page"))
 

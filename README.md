@@ -11,6 +11,7 @@ A web app for creating reusable feedback templates with replaceable placeholders
 - **Live placeholder detection** — Placeholders are detected as you type the template body
 - **Drag-and-drop reordering** — Rearrange templates on the home page
 - **One-click copy** — Copy generated feedback to clipboard instantly
+- **Light, dark, or system theme** — Choose in Settings; System follows your device
 
 ## Example
 

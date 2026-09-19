@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme-pref="{{ settings.theme }}"{% if settings.theme != 'system' %} data-theme="{{ settings.theme }}" data-bs-theme="{{ settings.theme }}"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,9 +12,10 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         rel="stylesheet">
   <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
 </head>
 <body>
-  <nav class="navbar navbar-expand-sm navbar-dark bg-app mb-4">
+  <nav class="navbar navbar-expand-sm bg-app mb-4">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('index') }}">Feedback Generator</a>
       <div class="navbar-nav ms-auto">
