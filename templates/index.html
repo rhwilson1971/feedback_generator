@@ -62,6 +62,11 @@
                  class="btn btn-success btn-sm">Generate</a>
               <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
                  class="btn btn-outline-secondary btn-sm" title="Edit template" aria-label="Edit template"><i class="fa-solid fa-pen-to-square"></i></a>
+              <button type="button" class="btn btn-outline-secondary btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#copyTemplateModal"
+                      data-template-id="{{ tpl._id }}" data-template-name="{{ tpl.name }}"
+                      data-container-id="{{ ctr._id }}"
+                      title="Copy template" aria-label="Copy template"><i class="fa-solid fa-copy"></i></button>
               <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
                     onsubmit="return confirm('Delete this template?')">
                 <button class="btn btn-outline-danger btn-sm w-100" title="Delete template" aria-label="Delete template"><i class="fa-solid fa-trash"></i></button>
@@ -111,6 +116,11 @@
                  class="btn btn-success btn-sm">Generate</a>
               <a href="{{ url_for('edit_template', template_id=tpl._id) }}"
                  class="btn btn-outline-secondary btn-sm" title="Edit template" aria-label="Edit template"><i class="fa-solid fa-pen-to-square"></i></a>
+              <button type="button" class="btn btn-outline-secondary btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#copyTemplateModal"
+                      data-template-id="{{ tpl._id }}" data-template-name="{{ tpl.name }}"
+                      data-container-id=""
+                      title="Copy template" aria-label="Copy template"><i class="fa-solid fa-copy"></i></button>
               <form method="post" action="{{ url_for('delete_template', template_id=tpl._id) }}"
                     onsubmit="return confirm('Delete this template?')">
                 <button class="btn btn-outline-danger btn-sm w-100" title="Delete template" aria-label="Delete template"><i class="fa-solid fa-trash"></i></button>
@@ -123,6 +133,33 @@
     </div>
   </div>
   {% endif %}
+</div>
+
+<div class="modal fade" id="copyTemplateModal" tabindex="-1"
+     aria-labelledby="copyTemplateModalLabel" aria-hidden="true"
+     data-action-template="{{ url_for('copy_template', template_id='__ID__') }}">
+  <div class="modal-dialog">
+    <form method="post" id="copyTemplateForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="copyTemplateModalLabel">Copy template</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Copy <strong id="copyTemplateName"></strong> to:</p>
+        <select name="container_id" id="copyTemplateContainer" class="form-select"
+                aria-label="Destination container">
+          <option value="">Uncategorized</option>
+          {% for ctr in containers %}
+          <option value="{{ ctr._id }}">{{ ctr.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Copy</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% else %}
 <div class="text-center py-5">
@@ -137,5 +174,6 @@
   initContainerReorder();
   initTemplateReorder();
   initTemplateFilter();
+  initCopyModal();
 </script>
 {% endblock %}

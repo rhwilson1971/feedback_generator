@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timezone
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
 from database import (
@@ -61,6 +62,18 @@ def _build_placeholders_from_form(form, body: str) -> list[dict]:
             "options": options,
         })
     return placeholders
+
+
+def _unique_template_name(name: str, container_id) -> str:
+    """Return name, or name with a " (copy)" / " (copy N)" suffix if the
+    container already holds a template with that name."""
+    col = get_templates_collection()
+    candidate = name
+    n = 1
+    while col.find_one({"name": candidate, "container_id": container_id}):
+        candidate = f"{name} (copy)" if n == 1 else f"{name} (copy {n})"
+        n += 1
+    return candidate
 
 
 def get_settings() -> dict:
@@ -198,6 +211,47 @@ def update_template(template_id):
 def delete_template(template_id):
     get_templates_collection().delete_one({"_id": ObjectId(template_id)})
     flash("Template deleted.", "success")
+    return redirect(url_for("index"))
+
+
+@app.route("/templates/<template_id>/copy", methods=["POST"])
+def copy_template(template_id):
+    try:
+        source_id = ObjectId(template_id)
+        raw_cid = request.form.get("container_id", "").strip()
+        container_id = ObjectId(raw_cid) if raw_cid else None
+    except InvalidId:
+        flash("Template or container not found.", "danger")
+        return redirect(url_for("index"))
+
+    source = get_templates_collection().find_one({"_id": source_id})
+    if not source:
+        flash("Template not found.", "danger")
+        return redirect(url_for("index"))
+
+    target_name = "Uncategorized"
+    if container_id:
+        target = get_containers_collection().find_one({"_id": container_id})
+        if not target:
+            flash("Container not found.", "danger")
+            return redirect(url_for("index"))
+        target_name = target["name"]
+
+    now = datetime.now(timezone.utc)
+    last = get_templates_collection().find_one(sort=[("sort_order", -1)])
+    next_order = (last["sort_order"] + 1) if last and "sort_order" in last else 0
+
+    get_templates_collection().insert_one({
+        "name": _unique_template_name(source["name"], container_id),
+        "body": source["body"],
+        "placeholders": [dict(ph) for ph in source["placeholders"]],
+        "container_id": container_id,
+        "sort_order": next_order,
+        "created_at": now,
+        "updated_at": now,
+    })
+
+    flash(f"Copied '{source['name']}' to '{target_name}'.", "success")
     return redirect(url_for("index"))
 
 

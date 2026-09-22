@@ -257,6 +257,31 @@ function initTemplateFilter() {
   clearBtn.addEventListener("click", clearFilter);
 }
 
+/**
+ * Wire the "copy template" modal so it targets whichever template's Copy
+ * button opened it.
+ *
+ * @param {Document} [doc] - Document containing the modal.
+ */
+function initCopyModal(doc = document) {
+  const modal = doc.getElementById("copyTemplateModal");
+  const form = doc.getElementById("copyTemplateForm");
+  const nameEl = doc.getElementById("copyTemplateName");
+  const select = doc.getElementById("copyTemplateContainer");
+  if (!modal || !form || !nameEl || !select) return;
+
+  modal.addEventListener("show.bs.modal", (event) => {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    form.setAttribute(
+      "action",
+      modal.dataset.actionTemplate.replace("__ID__", trigger.dataset.templateId)
+    );
+    nameEl.textContent = trigger.dataset.templateName;
+    select.value = trigger.dataset.containerId || "";
+  });
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { templateMatchesFilter, initTemplateFilter };
+  module.exports = { templateMatchesFilter, initTemplateFilter, initCopyModal };
 }
