@@ -173,11 +173,12 @@ function templateMatchesFilter(name, query) {
   return name.toLowerCase().includes(query.toLowerCase());
 }
 
-/** Initialize template-name filtering when its controls are present. */
+/** Initialize template-name and container filtering when the controls are present. */
 function initTemplateFilter() {
   const input = document.getElementById("templateFilter");
   const clearBtn = document.getElementById("clearFilterBtn");
   const noResults = document.getElementById("noFilterResults");
+  const containerSelect = document.getElementById("containerFilter");
   if (!input || !clearBtn || !noResults) return;
 
   /** Restore all accordion sections to their collapsed state. */
@@ -206,13 +207,24 @@ function initTemplateFilter() {
     }
   }
 
-  /** Apply the current query to template rows and their containers. */
+  /**
+   * Key identifying an accordion item for the container dropdown.
+   *
+   * @param {Element} item - Accordion item.
+   * @returns {string} Container id, or "uncategorized".
+   */
+  function containerKey(item) {
+    return item.dataset.id || "uncategorized";
+  }
+
+  /** Apply the current query and container choice to templates and containers. */
   function applyFilter() {
     const query = input.value.trim();
     const hasQuery = query.length > 0;
-    clearBtn.classList.toggle("d-none", !hasQuery);
+    const selected = containerSelect ? containerSelect.value : "";
+    clearBtn.classList.toggle("d-none", !hasQuery && !selected);
 
-    if (!hasQuery) {
+    if (!hasQuery && !selected) {
       document
         .querySelectorAll(".list-group-item[data-name]")
         .forEach((row) => row.classList.remove("d-none"));
@@ -224,20 +236,25 @@ function initTemplateFilter() {
       return;
     }
 
+    collapseAll();
     let anyMatch = false;
 
     document.querySelectorAll(".accordion-item").forEach((item) => {
+      const inContainer = !selected || containerKey(item) === selected;
       const rows = item.querySelectorAll(".list-group-item[data-name]");
       let itemHasMatch = false;
 
       rows.forEach((row) => {
-        const matches = templateMatchesFilter(row.dataset.name, query);
+        const matches = inContainer && templateMatchesFilter(row.dataset.name, query);
         row.classList.toggle("d-none", !matches);
         if (matches) itemHasMatch = true;
       });
 
-      item.classList.toggle("d-none", !itemHasMatch);
-      if (itemHasMatch) {
+      // A chosen container stays visible (with its content) even when empty,
+      // unless a text query rules out all of its templates.
+      const visible = inContainer && (hasQuery ? itemHasMatch : true);
+      item.classList.toggle("d-none", !visible);
+      if (visible) {
         expandContainer(item);
         anyMatch = true;
       }
@@ -246,15 +263,17 @@ function initTemplateFilter() {
     noResults.classList.toggle("d-none", anyMatch);
   }
 
-  /** Clear the query, restore the template list, and return focus. */
+  /** Clear the query and container choice, restore the list, and return focus. */
   function clearFilter() {
     input.value = "";
+    if (containerSelect) containerSelect.value = "";
     applyFilter();
     input.focus();
   }
 
   input.addEventListener("input", applyFilter);
   clearBtn.addEventListener("click", clearFilter);
+  if (containerSelect) containerSelect.addEventListener("change", applyFilter);
 }
 
 /**
@@ -282,6 +301,72 @@ function initCopyModal(doc = document) {
   });
 }
 
+/**
+ * Wire the "copy container" modal so it targets whichever container's Copy
+ * button opened it and suggests a default name for the new container.
+ *
+ * @param {Document} [doc] - Document containing the modal.
+ */
+function initCopyContainerModal(doc = document) {
+  const modal = doc.getElementById("copyContainerModal");
+  const form = doc.getElementById("copyContainerForm");
+  const sourceEl = doc.getElementById("copyContainerSource");
+  const nameInput = doc.getElementById("copyContainerName");
+  if (!modal || !form || !sourceEl || !nameInput) return;
+
+  modal.addEventListener("show.bs.modal", (event) => {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    form.setAttribute(
+      "action",
+      modal.dataset.actionTemplate.replace("__ID__", trigger.dataset.containerId)
+    );
+    sourceEl.textContent = trigger.dataset.containerName;
+    nameInput.value = `${trigger.dataset.containerName} (copy)`;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Missing-placeholder confirmation
+// ---------------------------------------------------------------------------
+
+/**
+ * Check whether a template body contains at least one {placeholder}.
+ *
+ * @param {string} body - Template body text.
+ * @returns {boolean} Whether a placeholder is present.
+ */
+function bodyHasPlaceholder(body) {
+  return /\{\w+\}/.test(body);
+}
+
+/**
+ * Ask for confirmation before saving a template that has no placeholders.
+ *
+ * @param {Document} [doc] - Document containing the template form.
+ * @param {function(string): boolean} [confirmFn] - Confirmation prompt.
+ */
+function initPlaceholderConfirm(doc = document, confirmFn = (msg) => window.confirm(msg)) {
+  const form = doc.getElementById("templateForm");
+  const body = doc.getElementById("body");
+  if (!form || !body) return;
+
+  form.addEventListener("submit", (event) => {
+    if (bodyHasPlaceholder(body.value)) return;
+    const ok = confirmFn(
+      "This template has no placeholders (e.g. {name}), so every generated feedback will be identical. Save it anyway?"
+    );
+    if (!ok) event.preventDefault();
+  });
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { templateMatchesFilter, initTemplateFilter, initCopyModal };
+  module.exports = {
+    templateMatchesFilter,
+    initTemplateFilter,
+    initCopyModal,
+    initCopyContainerModal,
+    bodyHasPlaceholder,
+    initPlaceholderConfirm,
+  };
 }

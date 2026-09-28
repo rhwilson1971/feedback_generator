@@ -60,5 +60,6 @@
   const existingPlaceholders = {{ template.placeholders | tojson | safe if template else '[]' }};
   const autofillGuard = {{ settings.disable_password_manager_autofill | tojson }};
   initPlaceholderDetection(existingPlaceholders, autofillGuard);
+  initPlaceholderConfirm();
 </script>
 {% endblock %}
