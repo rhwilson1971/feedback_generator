@@ -337,6 +337,56 @@ def create_container():
     return redirect(url_for("index"))
 
 
+@app.route("/containers/<container_id>/copy", methods=["POST"])
+def copy_container(container_id):
+    try:
+        source_id = ObjectId(container_id)
+    except InvalidId:
+        flash("Container not found.", "danger")
+        return redirect(url_for("index"))
+
+    source = get_containers_collection().find_one({"_id": source_id})
+    if not source:
+        flash("Container not found.", "danger")
+        return redirect(url_for("index"))
+
+    name = request.form.get("name", "").strip() or f"{source['name']} (copy)"
+    now = datetime.now(timezone.utc)
+
+    last = get_containers_collection().find_one(sort=[("sort_order", -1)])
+    next_order = (last["sort_order"] + 1) if last and "sort_order" in last else 0
+    new_id = get_containers_collection().insert_one({
+        "name": name,
+        "category": source.get("category", "Default"),
+        "sort_order": next_order,
+        "created_at": now,
+        "updated_at": now,
+    }).inserted_id
+
+    templates = list(
+        get_templates_collection().find({"container_id": source_id}).sort("sort_order", 1)
+    )
+    last_tpl = get_templates_collection().find_one(sort=[("sort_order", -1)])
+    tpl_order = (last_tpl["sort_order"] + 1) if last_tpl and "sort_order" in last_tpl else 0
+    for i, tpl in enumerate(templates):
+        get_templates_collection().insert_one({
+            "name": tpl["name"],
+            "body": tpl["body"],
+            "placeholders": [dict(ph) for ph in tpl["placeholders"]],
+            "container_id": new_id,
+            "sort_order": tpl_order + i,
+            "created_at": now,
+            "updated_at": now,
+        })
+
+    count = len(templates)
+    flash(
+        f"Copied '{source['name']}' to '{name}' with {count} template{'s' if count != 1 else ''}.",
+        "success",
+    )
+    return redirect(url_for("index"))
+
+
 @app.route("/containers/<container_id>/edit")
 def edit_container(container_id):
     ctr = get_containers_collection().find_one({"_id": ObjectId(container_id)})

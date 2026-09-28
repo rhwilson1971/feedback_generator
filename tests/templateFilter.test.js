@@ -211,3 +211,99 @@ test("clearing the filter collapses containers back to their default state", () 
     true
   );
 });
+
+// ---------------------------------------------------------------------------
+// Container dropdown filter
+// ---------------------------------------------------------------------------
+
+/**
+ * Add a container dropdown to the fixture, as rendered on the index page.
+ *
+ * @param {JSDOM} dom - DOM returned by {@link buildFixture}.
+ * @returns {HTMLSelectElement} The container select.
+ */
+function addContainerSelect(dom) {
+  const doc = dom.window.document;
+  const select = doc.createElement("select");
+  select.id = "containerFilter";
+  select.innerHTML = `<option value="">All containers</option>
+    <option value="c1">One</option><option value="c2">Two</option>
+    <option value="uncategorized">Uncategorized</option>`;
+  doc.body.prepend(select);
+  return select;
+}
+
+/**
+ * Choose a container in the dropdown and dispatch a change event.
+ *
+ * @param {JSDOM} dom - DOM that owns the select.
+ * @param {HTMLSelectElement} select - Container select.
+ * @param {string} value - Option value to choose.
+ */
+function choose(dom, select, value) {
+  select.value = value;
+  select.dispatchEvent(new dom.window.Event("change"));
+}
+
+test("choosing a container shows only that container, expanded with all its templates", () => {
+  const dom = buildFixture();
+  const select = addContainerSelect(dom);
+  const { row, container, uncategorized, clearBtn } = getters(dom);
+  initTemplateFilter();
+
+  choose(dom, select, "c1");
+
+  assert.equal(container("c1").classList.contains("d-none"), false);
+  assert.equal(container("c1").querySelector(".accordion-collapse").classList.contains("show"), true);
+  assert.equal(row("t1").classList.contains("d-none"), false);
+  assert.equal(row("t2").classList.contains("d-none"), false);
+  assert.equal(container("c2").classList.contains("d-none"), true);
+  assert.equal(uncategorized().classList.contains("d-none"), true);
+  assert.equal(clearBtn.classList.contains("d-none"), false, "clear shown");
+});
+
+test("choosing uncategorized shows only the uncategorized section", () => {
+  const dom = buildFixture();
+  const select = addContainerSelect(dom);
+  const { container, uncategorized } = getters(dom);
+  initTemplateFilter();
+
+  choose(dom, select, "uncategorized");
+
+  assert.equal(uncategorized().classList.contains("d-none"), false);
+  assert.equal(container("c1").classList.contains("d-none"), true);
+  assert.equal(container("c2").classList.contains("d-none"), true);
+});
+
+test("container choice combines with the name query", () => {
+  const dom = buildFixture();
+  const select = addContainerSelect(dom);
+  const { input, row, noResults } = getters(dom);
+  initTemplateFilter();
+
+  choose(dom, select, "c1");
+  type(dom, input, "constructive");
+  assert.equal(row("t1").classList.contains("d-none"), true);
+  assert.equal(row("t2").classList.contains("d-none"), false);
+
+  type(dom, input, "attendance");
+  assert.equal(noResults.classList.contains("d-none"), false, "match is in another container");
+});
+
+test("clear resets the container choice back to all containers", () => {
+  const dom = buildFixture();
+  const select = addContainerSelect(dom);
+  const { container, clearBtn, uncategorized } = getters(dom);
+  initTemplateFilter();
+
+  choose(dom, select, "c2");
+  clearBtn.dispatchEvent(new dom.window.Event("click"));
+
+  assert.equal(select.value, "");
+  assert.equal(clearBtn.classList.contains("d-none"), true);
+  ["c1", "c2"].forEach((id) => {
+    assert.equal(container(id).classList.contains("d-none"), false);
+    assert.equal(container(id).querySelector(".accordion-collapse").classList.contains("show"), false);
+  });
+  assert.equal(uncategorized().classList.contains("d-none"), false);
+});
