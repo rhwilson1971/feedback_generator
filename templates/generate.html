@@ -45,7 +45,15 @@
         <input type="text" class="form-control" id="ph_{{ ph.name }}"
                name="ph_{{ ph.name }}" required
                placeholder="Enter {{ ph.name }}"
+               {% if suggestions[ph.name] %}list="mru_{{ ph.name }}"{% endif %}
                {{ autofill_guard(settings) }}>
+        {% if suggestions[ph.name] %}
+        <datalist id="mru_{{ ph.name }}">
+          {% for v in suggestions[ph.name] %}
+          <option value="{{ v }}">
+          {% endfor %}
+        </datalist>
+        {% endif %}
         {% endif %}
       </div>
       {% endfor %}
