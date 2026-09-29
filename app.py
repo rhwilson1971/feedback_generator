@@ -28,6 +28,12 @@ DEFAULT_SETTINGS = {
     "theme": "system",
 }
 
+# Most-recently-used placeholder values, keyed by (container_id, placeholder
+# name) so every template in a container shares suggestions. In memory only:
+# cleared when the app restarts.
+MRU_LIMIT = 10
+_placeholder_mru: dict[tuple, list[str]] = {}
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -74,6 +80,25 @@ def _unique_template_name(name: str, container_id) -> str:
         candidate = f"{name} (copy)" if n == 1 else f"{name} (copy {n})"
         n += 1
     return candidate
+
+
+def remember_placeholder_value(container_id, name: str, value: str) -> None:
+    """Move `value` to the front of the MRU list for this container/placeholder."""
+    value = value.strip()
+    if not value:
+        return
+    key = (container_id, name)
+    values = [v for v in _placeholder_mru.get(key, []) if v != value]
+    _placeholder_mru[key] = [value, *values][:MRU_LIMIT]
+
+
+def placeholder_suggestions(tpl: dict) -> dict[str, list[str]]:
+    """Return recent values for each of the template's placeholders."""
+    cid = tpl.get("container_id")
+    return {
+        ph["name"]: list(_placeholder_mru.get((cid, ph["name"]), []))
+        for ph in tpl["placeholders"]
+    }
 
 
 def get_settings() -> dict:
@@ -261,7 +286,10 @@ def generate_form(template_id):
     if not tpl:
         flash("Template not found.", "danger")
         return redirect(url_for("index"))
-    return render_template("generate.html", template=tpl, result=None)
+    return render_template(
+        "generate.html", template=tpl, result=None,
+        suggestions=placeholder_suggestions(tpl),
+    )
 
 
 @app.route("/templates/<template_id>/generate", methods=["POST"])
@@ -275,8 +303,13 @@ def generate_feedback(template_id):
     for ph in tpl["placeholders"]:
         value = request.form.get(f"ph_{ph['name']}", "")
         result = result.replace("{" + ph["name"] + "}", value)
+        if ph.get("input_type") != "dropdown":
+            remember_placeholder_value(tpl.get("container_id"), ph["name"], value)
 
-    return render_template("generate.html", template=tpl, result=result)
+    return render_template(
+        "generate.html", template=tpl, result=result,
+        suggestions=placeholder_suggestions(tpl),
+    )
 
 
 @app.route("/templates/reorder", methods=["POST"])
