@@ -88,6 +88,12 @@ feedback_generator/
     └── generate.html
 ```
 
+## Browser extension (personal use)
+
+`extension/` holds an unpacked Chrome extension that pastes the most recently
+generated feedback into the text box you're using on another site. See
+[`extension/README.md`](extension/README.md) to load it.
+
 ## License
 
 MIT

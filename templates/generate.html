@@ -12,7 +12,7 @@
             onclick="copyToClipboard()">Copy to Clipboard</button>
   </div>
   <div class="card-body">
-    <textarea class="form-control" id="resultText" rows="6" readonly>{{ result }}</textarea>
+    <textarea class="form-control" id="resultText" rows="6" readonly data-feedback-generated>{{ result }}</textarea>
   </div>
 </div>
 <a href="{{ url_for('generate_form', template_id=template._id) }}"
