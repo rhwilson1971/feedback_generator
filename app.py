@@ -158,6 +158,10 @@ def index():
 
 @app.route("/templates/new")
 def new_template():
+    """Render the new template form with a valid query container preselected.
+
+    Missing or unknown container IDs default to Uncategorized.
+    """
     containers = list(get_containers_collection().find().sort("sort_order", 1))
     # Preselect the container when opened from a container's "add template" button.
     selected = request.args.get("container_id", "")
