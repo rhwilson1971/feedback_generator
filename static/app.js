@@ -173,12 +173,45 @@ function templateMatchesFilter(name, query) {
   return name.toLowerCase().includes(query.toLowerCase());
 }
 
+/**
+ * Check whether a template's tags include any of the applied tags.
+ *
+ * @param {string[]} tags - Template tags.
+ * @param {string[]} applied - Tags chosen in the filter.
+ * @returns {boolean} True when no tags are applied or any tag matches
+ *   (case-insensitive).
+ */
+function templateMatchesTags(tags, applied) {
+  if (!applied.length) return true;
+  const wanted = new Set(applied.map((t) => t.toLowerCase()));
+  return tags.some((t) => wanted.has(t.toLowerCase()));
+}
+
+/**
+ * Read a template row's tags from its data-tags JSON attribute.
+ *
+ * @param {Element} row - Template list row.
+ * @returns {string[]} Tags, or an empty list.
+ */
+function rowTags(row) {
+  try {
+    const tags = JSON.parse(row.dataset.tags || "[]");
+    return Array.isArray(tags) ? tags : [];
+  } catch (_) {
+    return [];
+  }
+}
+
 /** Initialize template-name and container filtering when the controls are present. */
 function initTemplateFilter() {
   const input = document.getElementById("templateFilter");
   const clearBtn = document.getElementById("clearFilterBtn");
   const noResults = document.getElementById("noFilterResults");
   const containerSelect = document.getElementById("containerFilter");
+  const tagForm = document.getElementById("tagFilterForm");
+  const tagToggle = document.getElementById("tagFilterToggle");
+  const tagReset = document.getElementById("tagFilterReset");
+  let appliedTags = [];
   if (!input || !clearBtn || !noResults) return;
 
   /** Restore all accordion sections to their collapsed state. */
@@ -222,9 +255,12 @@ function initTemplateFilter() {
     const query = input.value.trim();
     const hasQuery = query.length > 0;
     const selected = containerSelect ? containerSelect.value : "";
-    clearBtn.classList.toggle("d-none", !hasQuery && !selected);
+    const hasTags = appliedTags.length > 0;
+    // Name and tag filters both narrow down to matching templates.
+    const narrowing = hasQuery || hasTags;
+    clearBtn.classList.toggle("d-none", !narrowing && !selected);
 
-    if (!hasQuery && !selected) {
+    if (!narrowing && !selected) {
       document
         .querySelectorAll(".list-group-item[data-name]")
         .forEach((row) => row.classList.remove("d-none"));
@@ -245,14 +281,17 @@ function initTemplateFilter() {
       let itemHasMatch = false;
 
       rows.forEach((row) => {
-        const matches = inContainer && templateMatchesFilter(row.dataset.name, query);
+        const matches =
+          inContainer &&
+          templateMatchesFilter(row.dataset.name, query) &&
+          templateMatchesTags(rowTags(row), appliedTags);
         row.classList.toggle("d-none", !matches);
         if (matches) itemHasMatch = true;
       });
 
       // A chosen container stays visible (with its content) even when empty,
-      // unless a text query rules out all of its templates.
-      const visible = inContainer && (hasQuery ? itemHasMatch : true);
+      // unless a name or tag filter rules out all of its templates.
+      const visible = inContainer && (narrowing ? itemHasMatch : true);
       item.classList.toggle("d-none", !visible);
       if (visible) {
         expandContainer(item);
@@ -263,10 +302,40 @@ function initTemplateFilter() {
     noResults.classList.toggle("d-none", anyMatch);
   }
 
-  /** Clear the query and container choice, restore the list, and return focus. */
+  /** Show how many tags are applied on the Tags button. */
+  function updateTagToggle() {
+    if (!tagToggle) return;
+    tagToggle.textContent = appliedTags.length ? `Tags (${appliedTags.length})` : "Tags";
+    tagToggle.classList.toggle("btn-primary", appliedTags.length > 0);
+    tagToggle.classList.toggle("btn-outline-secondary", appliedTags.length === 0);
+  }
+
+  /** Apply the checked tags from the tag form. */
+  function applyTags() {
+    appliedTags = Array.from(
+      tagForm.querySelectorAll(".tag-filter-option:checked"),
+      (box) => box.value
+    );
+    updateTagToggle();
+    applyFilter();
+  }
+
+  /** Uncheck every tag and drop the tag filter. */
+  function resetTags() {
+    if (tagForm) {
+      tagForm
+        .querySelectorAll(".tag-filter-option")
+        .forEach((box) => { box.checked = false; });
+    }
+    appliedTags = [];
+    updateTagToggle();
+  }
+
+  /** Clear the query, container choice and tags, restore the list, and return focus. */
   function clearFilter() {
     input.value = "";
     if (containerSelect) containerSelect.value = "";
+    resetTags();
     applyFilter();
     input.focus();
   }
@@ -274,6 +343,38 @@ function initTemplateFilter() {
   input.addEventListener("input", applyFilter);
   clearBtn.addEventListener("click", clearFilter);
   if (containerSelect) containerSelect.addEventListener("change", applyFilter);
+  if (tagForm) {
+    tagForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      applyTags();
+    });
+  }
+  if (tagReset) {
+    tagReset.addEventListener("click", () => {
+      resetTags();
+      applyFilter();
+    });
+  }
+}
+
+/**
+ * Let the existing-tag buttons on the template form add their tag to the
+ * comma-separated tags field (once).
+ *
+ * @param {Document} [doc] - Document containing the form.
+ */
+function initTagSuggestions(doc = document) {
+  const input = doc.getElementById("tags");
+  if (!input) return;
+  doc.querySelectorAll(".tag-suggestion").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tags = input.value.split(",").map((t) => t.trim()).filter(Boolean);
+      const tag = btn.dataset.tag;
+      if (!tags.some((t) => t.toLowerCase() === tag.toLowerCase())) tags.push(tag);
+      input.value = tags.join(", ");
+      input.focus();
+    });
+  });
 }
 
 /**
@@ -363,7 +464,9 @@ function initPlaceholderConfirm(doc = document, confirmFn = (msg) => window.conf
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     templateMatchesFilter,
+    templateMatchesTags,
     initTemplateFilter,
+    initTagSuggestions,
     initCopyModal,
     initCopyContainerModal,
     bodyHasPlaceholder,

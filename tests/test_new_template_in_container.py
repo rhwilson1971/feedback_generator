@@ -22,6 +22,10 @@ class FakeCollection:
         """Return all stored documents as a cursor, ignoring the query."""
         return FakeCursor(self.docs)
 
+    def distinct(self, key):
+        """Return the unique values of a list field across stored documents."""
+        return sorted({v for d in self.docs for v in d.get(key, [])})
+
 
 class NewTemplateInContainerTests(unittest.TestCase):
     def setUp(self):
@@ -31,6 +35,11 @@ class NewTemplateInContainerTests(unittest.TestCase):
         patcher = patch.object(
             app_module, "get_containers_collection",
             return_value=FakeCollection([self.c1, self.c2]),
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        patcher = patch.object(
+            app_module, "get_templates_collection", return_value=FakeCollection([])
         )
         patcher.start()
         self.addCleanup(patcher.stop)
