@@ -22,7 +22,7 @@
       <option value="">None (Uncategorized)</option>
       {% for c in containers %}
       <option value="{{ c._id }}"
-              {% if template and template.container_id == c._id %}selected{% endif %}>{{ c.name }}</option>
+              {% if (template and template.container_id == c._id) or (not template and selected_container_id == c._id|string) %}selected{% endif %}>{{ c.name }}</option>
       {% endfor %}
     </select>
   </div>

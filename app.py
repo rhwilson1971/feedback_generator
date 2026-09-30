@@ -159,7 +159,14 @@ def index():
 @app.route("/templates/new")
 def new_template():
     containers = list(get_containers_collection().find().sort("sort_order", 1))
-    return render_template("template_form.html", template=None, containers=containers)
+    # Preselect the container when opened from a container's "add template" button.
+    selected = request.args.get("container_id", "")
+    if not any(str(c["_id"]) == selected for c in containers):
+        selected = ""
+    return render_template(
+        "template_form.html", template=None, containers=containers,
+        selected_container_id=selected,
+    )
 
 
 @app.route("/templates", methods=["POST"])
