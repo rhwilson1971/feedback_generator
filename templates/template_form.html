@@ -28,6 +28,23 @@
   </div>
 
   <div class="mb-3">
+    <label for="tags" class="form-label">Tags</label>
+    <input type="text" class="form-control" id="tags" name="tags"
+           value="{{ template.tags | join(', ') if template and template.tags else '' }}"
+           placeholder="e.g. praise, late work"
+           autocomplete="off" {{ autofill_guard(settings) }}>
+    <div class="form-text">Separate tags with commas.</div>
+    {% if all_tags %}
+    <div class="d-flex flex-wrap gap-1 mt-2" id="existingTags">
+      {% for tag in all_tags %}
+      <button type="button" class="btn btn-sm btn-outline-secondary tag-suggestion"
+              data-tag="{{ tag }}">{{ tag }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="mb-3">
     <label for="body" class="form-label">Template Body</label>
     <textarea class="form-control" id="body" name="body" rows="6" required
               placeholder='e.g. Hello, {name}. {assessment} work on your discussion.'
@@ -61,5 +78,6 @@
   const autofillGuard = {{ settings.disable_password_manager_autofill | tojson }};
   initPlaceholderDetection(existingPlaceholders, autofillGuard);
   initPlaceholderConfirm();
+  initTagSuggestions();
 </script>
 {% endblock %}

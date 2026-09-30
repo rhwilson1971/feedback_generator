@@ -18,6 +18,28 @@
   </select>
   <input type="text" id="templateFilter" class="form-control" placeholder="Filter by template name..."
          autocomplete="off">
+  {% if all_tags %}
+  <div class="dropdown">
+    <button type="button" id="tagFilterToggle" class="btn btn-outline-secondary dropdown-toggle text-nowrap"
+            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Tags</button>
+    <form id="tagFilterForm" class="dropdown-menu dropdown-menu-end p-3 tag-filter-menu">
+      <div class="tag-filter-options">
+        {% for tag in all_tags %}
+        <div class="form-check">
+          <input class="form-check-input tag-filter-option" type="checkbox"
+                 value="{{ tag }}" id="tagopt{{ loop.index }}">
+          <label class="form-check-label" for="tagopt{{ loop.index }}">{{ tag }}</label>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="form-text mb-2">Shows templates with any selected tag.</div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <button type="button" id="tagFilterReset" class="btn btn-outline-secondary btn-sm">Clear tags</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
   <button type="button" id="clearFilterBtn" class="btn btn-outline-secondary d-none">Clear</button>
 </div>
 <p id="noFilterResults" class="text-muted fst-italic d-none">No templates or containers match your filter.</p>
@@ -63,7 +85,8 @@
         <div class="list-group template-list" data-container-id="{{ ctr._id }}">
           {% for tpl in tpls %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
-               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}">
+               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}"
+               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -71,6 +94,9 @@
               <small class="text-muted">
                 {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
               </small>
+              {% for tag in tpl.tags or [] %}
+              <span class="badge rounded-pill tag-badge ms-1">{{ tag }}</span>
+              {% endfor %}
             </div>
             <div class="d-flex flex-column gap-1 ms-3">
               <a href="{{ url_for('generate_form', template_id=tpl._id) }}"
@@ -117,7 +143,8 @@
         <div class="list-group template-list" data-container-id="">
           {% for tpl in uncategorized %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
-               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}">
+               data-id="{{ tpl._id }}" data-name="{{ tpl.name }}"
+               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -125,6 +152,9 @@
               <small class="text-muted">
                 {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
               </small>
+              {% for tag in tpl.tags or [] %}
+              <span class="badge rounded-pill tag-badge ms-1">{{ tag }}</span>
+              {% endfor %}
             </div>
             <div class="d-flex flex-column gap-1 ms-3">
               <a href="{{ url_for('generate_form', template_id=tpl._id) }}"

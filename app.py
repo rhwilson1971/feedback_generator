@@ -70,6 +70,27 @@ def _build_placeholders_from_form(form, body: str) -> list[dict]:
     return placeholders
 
 
+def _parse_tags(raw: str) -> list[str]:
+    """Split comma-separated tags, trimming blanks and case-insensitive duplicates."""
+    tags, seen = [], set()
+    for tag in raw.split(","):
+        tag = " ".join(tag.split())
+        if tag and tag.lower() not in seen:
+            seen.add(tag.lower())
+            tags.append(tag)
+    return tags
+
+
+def _sorted_tags(tags) -> list[str]:
+    """Unique tags sorted case-insensitively."""
+    return sorted({t for t in tags if t}, key=str.lower)
+
+
+def _all_tags() -> list[str]:
+    """Every tag used on any template."""
+    return _sorted_tags(get_templates_collection().distinct("tags"))
+
+
 def _unique_template_name(name: str, container_id) -> str:
     """Return name, or name with a " (copy)" / " (copy N)" suffix if the
     container already holds a template with that name."""
@@ -153,6 +174,7 @@ def index():
         containers=containers,
         grouped=grouped,
         uncategorized=uncategorized,
+        all_tags=_sorted_tags(t for tpl in templates for t in tpl.get("tags", [])),
     )
 
 
@@ -169,7 +191,7 @@ def new_template():
         selected = ""
     return render_template(
         "template_form.html", template=None, containers=containers,
-        selected_container_id=selected,
+        selected_container_id=selected, all_tags=_all_tags(),
     )
 
 
@@ -195,6 +217,7 @@ def create_template():
         "name": name,
         "body": body,
         "placeholders": placeholders,
+        "tags": _parse_tags(request.form.get("tags", "")),
         "container_id": container_id,
         "sort_order": next_order,
         "created_at": now,
@@ -212,7 +235,9 @@ def edit_template(template_id):
         flash("Template not found.", "danger")
         return redirect(url_for("index"))
     containers = list(get_containers_collection().find().sort("sort_order", 1))
-    return render_template("template_form.html", template=tpl, containers=containers)
+    return render_template(
+        "template_form.html", template=tpl, containers=containers, all_tags=_all_tags(),
+    )
 
 
 @app.route("/templates/<template_id>/update", methods=["POST"])
@@ -234,6 +259,7 @@ def update_template(template_id):
             "name": name,
             "body": body,
             "placeholders": placeholders,
+            "tags": _parse_tags(request.form.get("tags", "")),
             "container_id": container_id,
             "updated_at": datetime.now(timezone.utc),
         }},
@@ -281,6 +307,7 @@ def copy_template(template_id):
         "name": _unique_template_name(source["name"], container_id),
         "body": source["body"],
         "placeholders": [dict(ph) for ph in source["placeholders"]],
+        "tags": list(source.get("tags", [])),
         "container_id": container_id,
         "sort_order": next_order,
         "created_at": now,
@@ -417,6 +444,7 @@ def copy_container(container_id):
             "name": tpl["name"],
             "body": tpl["body"],
             "placeholders": [dict(ph) for ph in tpl["placeholders"]],
+            "tags": list(tpl.get("tags", [])),
             "container_id": new_id,
             "sort_order": tpl_order + i,
             "created_at": now,

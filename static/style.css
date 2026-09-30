@@ -494,6 +494,17 @@ a.btn.btn-secondary.mb-4 { margin-bottom: 1.5rem !important; }
 }
 
 /* Category badge */
+.tag-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.tag-filter-menu { min-width: 14rem; }
+.tag-filter-options { max-height: 16rem; overflow-y: auto; margin-bottom: 0.5rem; }
+
 .category-badge {
   font-size: 0.7rem;
   font-weight: 500;
