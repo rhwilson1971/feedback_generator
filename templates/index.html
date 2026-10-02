@@ -6,7 +6,7 @@
 </div>
 
 {% if containers or uncategorized %}
-<div class="d-flex gap-2 mb-3">
+<div class="d-flex flex-wrap gap-2 mb-3">
   <select id="containerFilter" class="form-select w-auto" aria-label="Filter by container">
     <option value="">All containers</option>
     {% for ctr in containers %}
@@ -16,6 +16,12 @@
     <option value="uncategorized">Uncategorized</option>
     {% endif %}
   </select>
+  <select id="rankingFilter" class="form-select w-auto" aria-label="Filter by ranking scale">
+    <option value="">All rankings</option>
+    <option value="unranked">Unranked</option>
+    {% for scale in ranking_scales %}<option value="{{ scale._id }}">{{ scale.name }}</option>{% endfor %}
+  </select>
+  <select id="rankFilter" class="form-select w-auto" aria-label="Filter by rank" disabled><option value="">All ranks</option></select>
   <input type="text" id="templateFilter" class="form-control" placeholder="Filter by template name..."
          autocomplete="off">
   {% if all_tags %}
@@ -86,7 +92,8 @@
           {% for tpl in tpls %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
                data-id="{{ tpl._id }}" data-name="{{ tpl.name }}"
-               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}">
+               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}"
+               data-ranking-scale="{{ tpl.ranking_scale_id or '' }}" data-ranking-rank="{{ tpl.ranking_rank_id or '' }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -94,6 +101,8 @@
               <small class="text-muted">
                 {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
               </small>
+              {% set rank_label = ranking_labels.get((tpl.ranking_scale_id or '')|string, {}).get(tpl.ranking_rank_id) %}
+              {% if rank_label %}<span class="badge rounded-pill tag-badge ms-1">{{ rank_label }}</span>{% endif %}
               {% for tag in tpl.tags or [] %}
               <span class="badge rounded-pill tag-badge ms-1">{{ tag }}</span>
               {% endfor %}
@@ -144,7 +153,8 @@
           {% for tpl in uncategorized %}
           <div class="list-group-item d-flex justify-content-between align-items-start"
                data-id="{{ tpl._id }}" data-name="{{ tpl.name }}"
-               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}">
+               data-tags="{{ (tpl.tags or []) | tojson | forceescape }}"
+               data-ranking-scale="{{ tpl.ranking_scale_id or '' }}" data-ranking-rank="{{ tpl.ranking_rank_id or '' }}">
             <span class="drag-handle me-3 d-flex align-items-center" title="Drag to reorder">&#9776;</span>
             <div class="me-auto">
               <h5 class="mb-1">{{ tpl.name }}</h5>
@@ -152,6 +162,8 @@
               <small class="text-muted">
                 {{ tpl.placeholders|length }} placeholder{{ "s" if tpl.placeholders|length != 1 }}
               </small>
+              {% set rank_label = ranking_labels.get((tpl.ranking_scale_id or '')|string, {}).get(tpl.ranking_rank_id) %}
+              {% if rank_label %}<span class="badge rounded-pill tag-badge ms-1">{{ rank_label }}</span>{% endif %}
               {% for tag in tpl.tags or [] %}
               <span class="badge rounded-pill tag-badge ms-1">{{ tag }}</span>
               {% endfor %}
@@ -237,7 +249,9 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='rankings.js') }}"></script>
 <script>
+  initRankSelector(document.getElementById('rankingFilter'), document.getElementById('rankFilter'), {{ ranking_options | tojson }}, true);
   initContainerReorder();
   initTemplateReorder();
   initTemplateFilter();

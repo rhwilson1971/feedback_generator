@@ -4,6 +4,8 @@
 {% block content %}
 <h2 class="mb-3">{{ "Edit" if template else "New" }} Template</h2>
 
+{% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+
 <form method="post"
       action="{{ url_for('update_template', template_id=template._id) if template else url_for('create_template') }}"
       id="templateForm"
@@ -12,7 +14,7 @@
   <div class="mb-3">
     <label for="name" class="form-label">Template Name</label>
     <input type="text" class="form-control" id="name" name="name"
-           value="{{ template.name if template else '' }}" required
+           value="{{ form_values.name or '' }}" required
            {{ autofill_guard(settings) }}>
   </div>
 
@@ -22,7 +24,7 @@
       <option value="">None (Uncategorized)</option>
       {% for c in containers %}
       <option value="{{ c._id }}"
-              {% if (template and template.container_id == c._id) or (not template and selected_container_id == c._id|string) %}selected{% endif %}>{{ c.name }}</option>
+              {% if selected_container_id == c._id|string %}selected{% endif %}>{{ c.name }}</option>
       {% endfor %}
     </select>
   </div>
@@ -30,7 +32,7 @@
   <div class="mb-3">
     <label for="tags" class="form-label">Tags</label>
     <input type="text" class="form-control" id="tags" name="tags"
-           value="{{ template.tags | join(', ') if template and template.tags else '' }}"
+           value="{{ form_values.tags | join(', ') if form_values.tags else '' }}"
            placeholder="e.g. praise, late work"
            autocomplete="off" {{ autofill_guard(settings) }}>
     <div class="form-text">Separate tags with commas.</div>
@@ -44,11 +46,33 @@
     {% endif %}
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-sm-6">
+      <label for="rankingScale" class="form-label">Ranking scale (optional)</label>
+      <select class="form-select" id="rankingScale" name="ranking_scale_id">
+        <option value="">Unranked</option>
+        {% for scale in ranking_scales %}
+        <option value="{{ scale._id }}"{% if selected_scale_id == scale._id|string %} selected{% endif %}>{{ scale.name }}</option>
+        {% endfor %}
+      </select>
+      <div class="form-text"><a href="{{ url_for('rankings.index') }}">Manage shared ranking scales</a></div>
+    </div>
+    <div class="col-sm-6">
+      <label for="rankingRank" class="form-label">Rank</label>
+      <select class="form-select" id="rankingRank" name="ranking_rank_id" {% if not selected_scale_id %}disabled{% else %}required{% endif %}>
+        <option value="">Choose a rank…</option>
+        {% for scale in ranking_scales %}{% if selected_scale_id == scale._id|string %}
+        {% for rank in scale.ranks %}<option value="{{ rank.id }}"{% if selected_rank_id == rank.id|string %} selected{% endif %}>{{ rank.id }} — {{ rank.description }}</option>{% endfor %}
+        {% endif %}{% endfor %}
+      </select>
+    </div>
+  </div>
+
   <div class="mb-3">
     <label for="body" class="form-label">Template Body</label>
     <textarea class="form-control" id="body" name="body" rows="6" required
               placeholder='e.g. Hello, {name}. {assessment} work on your discussion.'
-              {{ autofill_guard(settings) }}>{{ template.body if template else '' }}</textarea>
+              {{ autofill_guard(settings) }}>{{ form_values.body or '' }}</textarea>
     <div class="form-text">
       Use <code>{placeholder_name}</code> for replaceable fields.
     </div>
@@ -72,9 +96,11 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='rankings.js') }}"></script>
 <script>
+  initRankSelector(document.getElementById('rankingScale'), document.getElementById('rankingRank'), {{ ranking_options | tojson }}, false);
   // Pass existing placeholder config (for edit mode) to JS
-  const existingPlaceholders = {{ template.placeholders | tojson | safe if template else '[]' }};
+  const existingPlaceholders = {{ (form_values.placeholders or []) | tojson }};
   const autofillGuard = {{ settings.disable_password_manager_autofill | tojson }};
   initPlaceholderDetection(existingPlaceholders, autofillGuard);
   initPlaceholderConfirm();

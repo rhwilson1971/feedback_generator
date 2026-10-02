@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h2 class="mb-0">Ranking Scales</h2>
+  <a class="btn btn-primary" href="{{ url_for('rankings.new') }}">+ New Scale</a>
+</div>
+<p class="text-muted">Define scales once and use them across any container. Templates can also stay unranked.</p>
+{% for scale in scales %}
+<div class="card mb-3">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <strong>{{ scale.name }}</strong>
+    <span class="text-muted small">{{ usages[scale._id|string] }} template{{ 's' if usages[scale._id|string] != 1 }}</span>
+  </div>
+  <div class="card-body">
+    <ul class="list-unstyled mb-3">
+      {% for rank in scale.ranks %}<li class="mb-1"><strong>{{ rank.id }}</strong> — {{ rank.description }}</li>{% endfor %}
+    </ul>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('rankings.edit', scale_id=scale._id) }}">Edit</a>
+      <form method="post" action="{{ url_for('rankings.delete', scale_id=scale._id) }}" onsubmit="return confirm('Delete this ranking scale?')">
+        <button class="btn btn-outline-danger btn-sm" {% if usages[scale._id|string] %}disabled title="Unrank or reassign templates first"{% endif %}>Delete</button>
+      </form>
+    </div>
+    {% if usages[scale._id|string] %}<p class="form-text mb-0">Unrank or reassign its templates before deleting this scale.</p>{% endif %}
+  </div>
+</div>
+{% else %}
+<div class="text-center py-4"><p class="text-muted">No ranking scales yet.</p><a class="btn btn-primary" href="{{ url_for('rankings.new') }}">Create Your First Scale</a></div>
+{% endfor %}
+{% endblock %}
