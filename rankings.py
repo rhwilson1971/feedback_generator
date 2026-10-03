@@ -123,6 +123,7 @@ def save_scale(values, source=None):
 
 @bp.get('/rankings')
 def index():
+    """Render shared scales with the number of templates using each scale."""
     scales = list_scales()
     usages = {str(s['_id']): database.get_templates_collection().count_documents(
         {'ranking_scale_id': s['_id']}) for s in scales}
@@ -131,12 +132,14 @@ def index():
 
 @bp.get('/rankings/new')
 def new():
+    """Render a blank scale form with one initial rank row."""
     return render_template('ranking_form.html', scale=None,
                            values={'name': '', 'ranks': [{'id': 1, 'description': ''}]})
 
 
 @bp.post('/rankings')
 def create():
+    """Create a scale, or return the submitted form with validation errors and HTTP 400."""
     values = form_values(request.form)
     try:
         save_scale(values)
@@ -148,12 +151,14 @@ def create():
 
 @bp.get('/rankings/<scale_id>/edit')
 def edit(scale_id):
+    """Render an existing scale for editing, or abort with HTTP 404."""
     scale = get_scale(scale_id)
     return render_template('ranking_form.html', scale=scale, values=scale)
 
 
 @bp.post('/rankings/<scale_id>/update')
 def update(scale_id):
+    """Save scale edits, or redisplay invalid values while keeping stored data intact."""
     scale = get_scale(scale_id)
     values = form_values(request.form)
     try:
@@ -166,6 +171,7 @@ def update(scale_id):
 
 @bp.post('/rankings/<scale_id>/delete')
 def delete(scale_id):
+    """Delete an unused scale, or flash a warning when templates still reference it."""
     scale = get_scale(scale_id)
     if database.get_templates_collection().find_one({'ranking_scale_id': scale['_id']}):
         flash('This scale is in use. Unrank or reassign its templates before deleting it.', 'danger')

@@ -162,6 +162,7 @@ def inject_settings():
 
 @app.route("/")
 def index():
+    """Render templates grouped by container with tag and ranking filter data."""
     scales = rankings.list_scales()
     containers = list(get_containers_collection().find().sort("sort_order", 1))
     templates = list(get_templates_collection().find().sort("sort_order", 1))
@@ -218,6 +219,7 @@ def new_template():
 
 @app.route("/templates", methods=["POST"])
 def create_template():
+    """Save a new template, or redisplay submitted values with validation errors."""
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 
@@ -255,6 +257,7 @@ def create_template():
 
 @app.route("/templates/<template_id>/edit")
 def edit_template(template_id):
+    """Render an existing template for editing, redirecting if it is missing."""
     tpl = get_templates_collection().find_one({"_id": ObjectId(template_id)})
     if not tpl:
         flash("Template not found.", "danger")
@@ -264,6 +267,7 @@ def edit_template(template_id):
 
 @app.route("/templates/<template_id>/update", methods=["POST"])
 def update_template(template_id):
+    """Validate and save template edits, preserving form values on invalid input."""
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 
@@ -311,6 +315,7 @@ def delete_template(template_id):
 
 @app.route("/templates/<template_id>/copy", methods=["POST"])
 def copy_template(template_id):
+    """Copy a template into the requested container, retaining tags and ranking references."""
     try:
         source_id = ObjectId(template_id)
         raw_cid = request.form.get("container_id", "").strip()
@@ -445,6 +450,7 @@ def create_container():
 
 @app.route("/containers/<container_id>/copy", methods=["POST"])
 def copy_container(container_id):
+    """Duplicate a container and its templates, retaining their shared ranking references."""
     try:
         source_id = ObjectId(container_id)
     except InvalidId:

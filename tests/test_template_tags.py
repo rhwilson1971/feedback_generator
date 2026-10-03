@@ -39,6 +39,7 @@ class ParseTagsTests(unittest.TestCase):
 
 class TemplateTagRouteTests(unittest.TestCase):
     def setUp(self):
+        """Stub one tagged and one untagged template in a container."""
         from ranking_support import Collection
         scales_patcher = patch("database.get_ranking_scales_collection", return_value=Collection())
         scales_patcher.start()
@@ -46,7 +47,6 @@ class TemplateTagRouteTests(unittest.TestCase):
         settings_patcher = patch.object(app_module, "get_settings_collection")
         settings_patcher.start().find_one.return_value = {}
         self.addCleanup(settings_patcher.stop)
-        """Stub one tagged and one untagged template in a container."""
         now = datetime(2026, 1, 1, tzinfo=timezone.utc)
         self.ctr = {"_id": ObjectId(), "name": "Essays", "category": "W", "sort_order": 0}
         self.tpl = {

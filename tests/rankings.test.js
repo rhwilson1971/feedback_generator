@@ -7,11 +7,13 @@ const scales = [
   { id: 'two', name: 'Quality', ranks: [{ id: 2, description: 'Great' }] },
 ];
 
+/** Create scale and rank controls with a saved rank for selector tests. */
 function selectorFixture() {
   const dom = new JSDOM('<select id="scale"><option value="">Unranked</option><option value="unranked">Unranked filter</option><option value="one">Completion</option><option value="two">Quality</option></select><select id="rank"><option value="">Choose</option><option value="3" selected>Old</option></select>');
   return { dom, scale: dom.window.document.getElementById('scale'), rank: dom.window.document.getElementById('rank') };
 }
 
+/** Select a value and notify dependent controls with a bubbling change event. */
 function change(dom, select, value) {
   select.value = value;
   select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));

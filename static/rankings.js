@@ -6,6 +6,7 @@ function initRankSelector(scaleSelect, rankSelect, scales, filterMode = false) {
   if (!scaleSelect || !rankSelect) return;
   const doc = rankSelect.ownerDocument;
 
+  /** Rebuild choices for the selected scale and restore a valid rank when supplied. */
   function populate(selected = '') {
     const scale = scales.find(s => s.id === scaleSelect.value);
     rankSelect.replaceChildren();
@@ -40,6 +41,7 @@ function initRankRows(doc = document, confirmFn = message => doc.defaultView.con
   if (!rows || !add || !template) return;
   let serial = 0;
 
+  /** Associate row labels with unique input IDs and prevent removing the last row. */
   function updateRows() {
     const current = rows.querySelectorAll('.rank-row');
     current.forEach((row, index) => {

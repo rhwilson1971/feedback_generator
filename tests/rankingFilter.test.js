@@ -4,6 +4,7 @@ const { JSDOM } = require('jsdom');
 const { initTemplateFilter } = require('../static/app.js');
 const rankings = require('../static/rankings.js');
 
+/** Initialize ranking and template filters on a DOM with ranked and legacy templates. */
 function fixture() {
   const dom = new JSDOM(`<select id="containerFilter"><option value="">All</option><option value="c1">Essays</option><option value="c2">Labs</option></select>
     <select id="rankingFilter"><option value="">All rankings</option><option value="unranked">Unranked</option><option value="s1">Completion</option><option value="s2">Quality</option></select>
@@ -27,11 +28,13 @@ function fixture() {
   initTemplateFilter();
   return dom;
 }
+/** Select a filter value and dispatch the change event that applies it. */
 function choose(dom, id, value) {
   const el = dom.window.document.getElementById(id);
   el.value = value;
   el.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 }
+/** Return IDs of template rows currently visible in the fixture. */
 function visible(dom) {
   return [...dom.window.document.querySelectorAll('.list-group-item:not(.d-none)')].map(el => el.dataset.id);
 }

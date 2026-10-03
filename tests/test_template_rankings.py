@@ -9,6 +9,7 @@ from ranking_support import Collection
 
 class TemplateRankingTests(unittest.TestCase):
     def setUp(self):
+        """Stub a shared scale, a legacy template, its container, and settings for route tests."""
         self.sid, self.cid, self.tid = ObjectId(), ObjectId(), ObjectId()
         self.scales = Collection([{'_id': self.sid, 'name': 'Completion', 'name_key': 'completion',
                                    'ranks': [{'id': 1, 'description': 'Completed'},
@@ -28,16 +29,19 @@ class TemplateRankingTests(unittest.TestCase):
         self.client = app_module.app.test_client()
 
     def form(self, **extra):
+        """Build a ranked template submission with optional field overrides."""
         return {'name': 'New', 'body': 'Hi {name}', 'tags': 'praise', 'container_id': str(self.cid),
                 'ranking_scale_id': str(self.sid), 'ranking_rank_id': '1', **extra}
 
     def test_create_saves_valid_scale_and_rank(self):
+        """Verify template creation stores the selected scale ObjectId and integer rank."""
         self.assertEqual(self.client.post('/templates', data=self.form()).status_code, 302)
         template = self.templates.find_one({'name': 'New'})
         self.assertEqual(template.get('ranking_scale_id'), self.sid)
         self.assertEqual(template.get('ranking_rank_id'), 1)
 
     def test_update_can_rank_and_then_unrank(self):
+        """Verify clearing the scale clears both saved references even when a rank is submitted."""
         url = f'/templates/{self.tid}/update'
         self.client.post(url, data=self.form())
         self.assertEqual(self.templates.find_one({'_id': self.tid}).get('ranking_rank_id'), 1)
@@ -47,6 +51,7 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertIsNone(template.get('ranking_rank_id'))
 
     def test_unranked_create_and_legacy_edit_need_no_migration(self):
+        """Verify omitted ranking fields and legacy templates remain valid and editable."""
         data = self.form()
         data.pop('ranking_scale_id')
         data.pop('ranking_rank_id')
@@ -58,6 +63,7 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertIn('Hi {name}', html)
 
     def test_invalid_reference_preserves_input_and_does_not_save(self):
+        """Verify invalid scale or rank references preserve submitted text without creating a template."""
         for extra in [dict(ranking_scale_id='bad'), dict(ranking_scale_id=str(ObjectId())),
                       dict(ranking_rank_id=''), dict(ranking_rank_id='2'), dict(ranking_rank_id='x')]:
             response = self.client.post('/templates', data=self.form(name='Keep me', body='Keep {name}', **extra))
@@ -68,11 +74,13 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertEqual(self.templates.count_documents({}), 1)
 
     def test_invalid_update_leaves_original_unchanged(self):
+        """Verify an invalid rank rejects an update without changing the stored template name."""
         response = self.client.post(f'/templates/{self.tid}/update', data=self.form(ranking_rank_id='999'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.templates.find_one({'_id': self.tid})['name'], 'Old')
 
     def test_copy_template_preserves_shared_references(self):
+        """Verify a template copy retains its ranking references without duplicating the scale."""
         self.templates.update_one({'_id': self.tid}, {'$set': {'ranking_scale_id': self.sid, 'ranking_rank_id': 3}})
         self.client.post(f'/templates/{self.tid}/copy', data={'container_id': ''})
         copy = self.templates.find_one({'container_id': None})
@@ -81,6 +89,7 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertEqual(self.scales.count_documents({}), 1)
 
     def test_copy_container_preserves_shared_references(self):
+        """Verify templates copied with a container keep their scale and rank references."""
         self.templates.update_one({'_id': self.tid}, {'$set': {'ranking_scale_id': self.sid, 'ranking_rank_id': 1}})
         self.client.post(f'/containers/{self.cid}/copy', data={'name': 'Copy'})
         new_cid = self.containers.find_one({'name': 'Copy'})['_id']
@@ -89,6 +98,7 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertEqual(copy.get('ranking_rank_id'), 1)
 
     def test_home_badge_resolves_shared_labels_and_filters(self):
+        """Verify list metadata and badges use shared references and reflect updated labels."""
         self.templates.update_one({'_id': self.tid}, {'$set': {'ranking_scale_id': self.sid, 'ranking_rank_id': 1}})
         html = self.client.get('/').get_data(as_text=True)
         self.assertIn('Completion · 1 — Completed', html)
@@ -101,11 +111,13 @@ class TemplateRankingTests(unittest.TestCase):
         self.assertIn('Quality · 1 — Excellent', self.client.get('/').get_data(as_text=True))
 
     def test_unranked_template_has_empty_filter_metadata(self):
+        """Verify legacy templates expose empty scale and rank attributes for filtering."""
         html = self.client.get('/').get_data(as_text=True)
         self.assertIn('data-ranking-scale=""', html)
         self.assertIn('data-ranking-rank=""', html)
 
     def test_edit_form_restores_assigned_rank(self):
+        """Verify the edit form preselects the saved scale and rank."""
         self.templates.update_one({'_id': self.tid}, {'$set': {'ranking_scale_id': self.sid, 'ranking_rank_id': 3}})
         html = self.client.get(f'/templates/{self.tid}/edit').get_data(as_text=True)
         self.assertIn(f'value="{self.sid}" selected', html)
