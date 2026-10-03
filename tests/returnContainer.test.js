@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { JSDOM } = require('jsdom');
 const { initReturnContainer, initTemplateFilter } = require('../static/app.js');
 
+/** Build an accordion DOM, set global.document, and track scroll calls. */
 function fixture(query = '?return_template=t1', uncategorized = false) {
   const dom = new JSDOM(`<input id="templateFilter"><button id="clearFilterBtn"></button>
     <p id="noFilterResults"></p><div class="accordion-item" ${uncategorized ? '' : 'data-id="current-container"'}>

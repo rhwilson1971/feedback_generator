@@ -589,6 +589,7 @@ def settings_page():
 
 @app.route("/settings", methods=["POST"])
 def update_settings():
+    """Save checkbox preferences and a valid theme, then return to Settings."""
     # An unchecked checkbox is absent from the form body, so absence == False.
     updates = {
         "disable_password_manager_autofill":
