@@ -59,7 +59,7 @@
       {% endfor %}
 
       <button type="submit" class="btn btn-success">Generate Feedback</button>
-      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Back</a>
+      <a href="{{ url_for('index', return_template=template._id|string) if settings.reopen_container_after_feedback else url_for('index') }}" class="btn btn-outline-secondary ms-2">Back to templates</a>
     </form>
   </div>
 </div>

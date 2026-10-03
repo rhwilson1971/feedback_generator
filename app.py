@@ -29,6 +29,7 @@ THEME_CHOICES = ("light", "dark", "system")
 DEFAULT_SETTINGS = {
     "disable_password_manager_autofill": False,
     "theme": "system",
+    "reopen_container_after_feedback": True,
 }
 
 # Most-recently-used placeholder values, keyed by (container_id, placeholder
@@ -592,6 +593,8 @@ def update_settings():
     updates = {
         "disable_password_manager_autofill":
             "disable_password_manager_autofill" in request.form,
+        "reopen_container_after_feedback":
+            "reopen_container_after_feedback" in request.form,
     }
     theme = request.form.get("theme", "")
     if theme in THEME_CHOICES:

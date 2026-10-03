@@ -26,6 +26,21 @@
   </div>
 
   <div class="card mb-4">
+    <div class="card-header">Templates</div>
+    <div class="card-body">
+      <div class="form-check form-switch settings-row">
+        <input class="form-check-input" type="checkbox" role="switch"
+               id="reopen_container_after_feedback" name="reopen_container_after_feedback"
+               {% if settings.reopen_container_after_feedback %}checked{% endif %}>
+        <label class="form-check-label" for="reopen_container_after_feedback">
+          Reopen container when returning from feedback
+        </label>
+        <div class="form-text">Back to templates opens the template's container and scrolls it into view.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
     <div class="card-header">Privacy &amp; Forms</div>
     <div class="card-body">
       <div class="form-check form-switch settings-row">

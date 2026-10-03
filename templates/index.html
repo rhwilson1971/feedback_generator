@@ -255,6 +255,7 @@
   initContainerReorder();
   initTemplateReorder();
   initTemplateFilter();
+  {% if settings.reopen_container_after_feedback %}initReturnContainer();{% endif %}
   initCopyModal();
   initCopyContainerModal();
 </script>
