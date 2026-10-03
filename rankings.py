@@ -24,7 +24,7 @@ def scale_options(scales):
 
 
 def get_scale(scale_id):
-    """Resolve a route's scale ID or return a normal 404."""
+    """Return the scale for a route ID; abort with HTTP 404 if invalid or missing."""
     try:
         oid = ObjectId(scale_id)
     except (InvalidId, TypeError):
@@ -36,14 +36,24 @@ def get_scale(scale_id):
 
 
 def form_values(form):
-    """Preserve submitted rows, including malformed rows, for correction."""
+    """Return the submitted name and rank rows without validation or trimming.
+
+    Pair repeated rank_id and rank_description fields in order, filling missing
+    partners with empty strings so malformed rows remain available for correction.
+    """
     rows = [{'id': n, 'description': d} for n, d in zip_longest(
         form.getlist('rank_id'), form.getlist('rank_description'), fillvalue='')]
     return {'name': form.get('name', ''), 'ranks': rows}
 
 
 def validate_scale(values):
-    """Normalize a scale and reject blank, duplicate, or invalid entries."""
+    """Return trimmed labels, a casefolded name_key, and ranks in numeric order.
+
+    Accept the name/ranks mapping from form_values. Raise ValueError for a
+    blank name or description, no ranks, duplicate rank numbers, or invalid
+    numbers. Rank IDs must contain 1-10 ASCII digits after trimming and have
+    values from 1 through 2147483647; gaps are allowed.
+    """
     name = values['name'].strip()
     if not name:
         raise ValueError('A scale name is required.')
@@ -68,7 +78,13 @@ def validate_scale(values):
 
 
 def template_ranking(form):
-    """Validate an optional scale/rank pair; blank scale means Unranked."""
+    """Return ranking_scale_id and ranking_rank_id references for a template.
+
+    A missing or blank scale clears both references to None, ignoring any rank.
+    Otherwise, raise ValueError for an invalid or unknown scale or a rank that
+    is not 1-10 ASCII digits naming a rank in that scale, after trimming.
+    Database lookup errors propagate.
+    """
     raw_scale = form.get('ranking_scale_id', '').strip()
     if not raw_scale:
         return {'ranking_scale_id': None, 'ranking_rank_id': None}
@@ -95,7 +111,15 @@ def ranking_labels(scales):
 
 
 def save_scale(values, source=None):
-    """Save a validated scale, protecting referenced ranks and unique names."""
+    """Validate and insert a scale, or update the stored scale given by source.
+
+    Accept values from form_values and an existing scale document as source.
+    Raise ValueError for invalid values, a name already used (ignoring case and
+    surrounding whitespace), or removal of a referenced rank number.
+    Set timestamps and ensure a unique name_key index. DuplicateKeyError from
+    insert/update becomes ValueError; index creation and other database errors
+    propagate.
+    """
     changes = validate_scale(values)
     col = database.get_ranking_scales_collection()
     duplicate = col.find_one({'name_key': changes['name_key']})
@@ -158,7 +182,11 @@ def edit(scale_id):
 
 @bp.post('/rankings/<scale_id>/update')
 def update(scale_id):
-    """Save scale edits, or redisplay invalid values while keeping stored data intact."""
+    """Save scale edits and redirect to the scale list.
+
+    Abort with HTTP 404 for an invalid or missing scale. Redisplay submitted
+    values with HTTP 400 when save_scale raises ValueError.
+    """
     scale = get_scale(scale_id)
     values = form_values(request.form)
     try:
@@ -171,7 +199,11 @@ def update(scale_id):
 
 @bp.post('/rankings/<scale_id>/delete')
 def delete(scale_id):
-    """Delete an unused scale, or flash a warning when templates still reference it."""
+    """Delete an unused scale, or flash a warning when templates still reference it.
+
+    Redirect to the scale list in either case; abort with HTTP 404 for an
+    invalid or missing scale.
+    """
     scale = get_scale(scale_id)
     if database.get_templates_collection().find_one({'ranking_scale_id': scale['_id']}):
         flash('This scale is in use. Unrank or reassign its templates before deleting it.', 'danger')

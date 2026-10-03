@@ -186,7 +186,11 @@ def index():
 
 
 def _render_template_form(template=None, submitted=None, error=None, selected=""):
-    """Render assignment controls and preserve submitted values after validation errors."""
+    """Render assignment controls and preserve submitted values after validation errors.
+
+    Submitted values override template values. Use selected as the fallback
+    container ID; unknown containers display as Uncategorized.
+    """
     containers = list(get_containers_collection().find().sort("sort_order", 1))
     scales = rankings.list_scales()
     values = template or {}
@@ -213,13 +217,20 @@ def _render_template_form(template=None, submitted=None, error=None, selected=""
 
 @app.route("/templates/new")
 def new_template():
-    """Open a new template, optionally preselecting a valid container."""
+    """Render the new template form with a valid query container preselected.
+
+    Missing or unknown container IDs default to Uncategorized.
+    """
     return _render_template_form(selected=request.args.get("container_id", ""))
 
 
 @app.route("/templates", methods=["POST"])
 def create_template():
-    """Save a new template, or redisplay submitted values with validation errors."""
+    """Save a new template and redirect to the index.
+
+    Missing name/body, invalid rankings, or malformed container IDs redisplay
+    submitted values with HTTP 400 without inserting a template.
+    """
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 
@@ -257,7 +268,10 @@ def create_template():
 
 @app.route("/templates/<template_id>/edit")
 def edit_template(template_id):
-    """Render an existing template for editing, redirecting if it is missing."""
+    """Render an existing template for editing, redirecting if it is missing.
+
+    A malformed template_id raises InvalidId rather than redirecting.
+    """
     tpl = get_templates_collection().find_one({"_id": ObjectId(template_id)})
     if not tpl:
         flash("Template not found.", "danger")
@@ -267,7 +281,12 @@ def edit_template(template_id):
 
 @app.route("/templates/<template_id>/update", methods=["POST"])
 def update_template(template_id):
-    """Validate and save template edits, preserving form values on invalid input."""
+    """Validate and save template edits, then redirect to the index.
+
+    Return HTTP 404 for a malformed or unknown template ID. Missing name/body,
+    invalid rankings, or malformed container IDs redisplay submitted values
+    with HTTP 400 without updating the template.
+    """
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 

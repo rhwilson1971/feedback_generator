@@ -1,6 +1,11 @@
 /**
  * Populate rank choices for a scale. Restore an existing rank once, then reset
  * it whenever the scale changes. Text content keeps user-authored labels safe.
+ * Missing controls are ignored; an unknown or blank scale disables the rank.
+ * Scale changes dispatch a bubbling change event on the rank selector.
+ *
+ * @param {boolean} filterMode - Offer optional "All ranks" when true; otherwise
+ *   require a rank whenever a known scale is selected.
  */
 function initRankSelector(scaleSelect, rankSelect, scales, filterMode = false) {
   if (!scaleSelect || !rankSelect) return;
@@ -33,7 +38,14 @@ function initRankSelector(scaleSelect, rankSelect, scales, filterMode = false) {
   });
 }
 
-/** Add/remove rank rows while retaining one row and accessible unique labels. */
+/**
+ * Add/remove rank rows while retaining one row and accessible unique labels.
+ * Missing form controls are ignored. Row removal only changes the form.
+ *
+ * @param {Function} confirmFn - Called with a confirmation message before removing
+ *   a row marked data-persisted="true"; a falsy result cancels removal. Defaults
+ *   to the document window's confirm dialog.
+ */
 function initRankRows(doc = document, confirmFn = message => doc.defaultView.confirm(message)) {
   const rows = doc.getElementById('rankRows');
   const add = doc.getElementById('addRank');

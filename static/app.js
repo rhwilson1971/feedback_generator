@@ -252,7 +252,7 @@ function initTemplateFilter() {
     return item.dataset.id || "uncategorized";
   }
 
-  /** Apply the current query and container choice to templates and containers. */
+  /** Apply name, container, tag, and ranking filters to templates and containers. */
   function applyFilter() {
     const query = input.value.trim();
     const hasQuery = query.length > 0;
