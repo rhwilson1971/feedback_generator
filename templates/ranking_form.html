@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import autofill_guard %}
+{% block content %}
+<h2 class="mb-3">{{ 'Edit' if scale else 'New' }} Ranking Scale</h2>
+{% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+<form method="post" action="{{ url_for('rankings.update', scale_id=scale._id) if scale else url_for('rankings.create') }}" id="rankingScaleForm" {{ autofill_guard(settings) }}>
+  <div class="mb-3">
+    <label for="scaleName" class="form-label">Scale name</label>
+    <input id="scaleName" class="form-control" name="name" value="{{ values.name }}" placeholder="e.g. Completion" required {{ autofill_guard(settings) }}>
+  </div>
+  <h5>Ranks</h5>
+  <p class="text-muted small">Give each rank a unique positive number and a description. Numbers are displayed in ascending order. Ranks in use cannot be removed or renumbered.</p>
+  <div id="rankRows">
+    {% for rank in values.ranks %}
+    <div class="rank-row row g-2 align-items-end mb-3"{% if scale %} data-persisted="true"{% endif %}>
+      <div class="col-4 col-sm-2"><label class="form-label" for="rankNumber{{ loop.index }}">Number</label><input class="form-control" id="rankNumber{{ loop.index }}" type="number" name="rank_id" min="1" max="2147483647" step="1" value="{{ rank.id }}" required></div>
+      <div class="col-8 col-sm-8"><label class="form-label" for="rankDescription{{ loop.index }}">Description</label><input class="form-control" id="rankDescription{{ loop.index }}" name="rank_description" value="{{ rank.description }}" required {{ autofill_guard(settings) }}></div>
+      <div class="col-sm-2"><button type="button" class="btn btn-outline-danger remove-rank" aria-label="Remove rank {{ loop.index }}">Remove</button></div>
+    </div>
+    {% endfor %}
+  </div>
+  <button type="button" class="btn btn-outline-secondary mb-4" id="addRank">+ Add Rank</button>
+  <div><button class="btn btn-primary">{{ 'Save Changes' if scale else 'Create Scale' }}</button><a class="btn btn-outline-secondary ms-2" href="{{ url_for('rankings.index') }}">Cancel</a></div>
+</form>
+<template id="rankRowTemplate">
+  <div class="rank-row row g-2 align-items-end mb-3">
+    <div class="col-4 col-sm-2"><label class="form-label">Number</label><input class="form-control" type="number" name="rank_id" min="1" max="2147483647" step="1" required></div>
+    <div class="col-8 col-sm-8"><label class="form-label">Description</label><input class="form-control" name="rank_description" required {{ autofill_guard(settings) }}></div>
+    <div class="col-sm-2"><button type="button" class="btn btn-outline-danger remove-rank">Remove</button></div>
+  </div>
+</template>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='rankings.js') }}"></script>
+<script>initRankRows();</script>
+{% endblock %}

@@ -28,3 +28,8 @@ def get_containers_collection():
 
 def get_settings_collection():
     return get_db()["settings"]
+
+
+def get_ranking_scales_collection():
+    """Shared ranking scales used by templates in any container."""
+    return get_db()["ranking_scales"]

@@ -30,6 +30,13 @@ class FakeCollection:
 class NewTemplateInContainerTests(unittest.TestCase):
     def setUp(self):
         """Stub two containers and create a Flask client for each test."""
+        from ranking_support import Collection
+        scales_patcher = patch("database.get_ranking_scales_collection", return_value=Collection())
+        scales_patcher.start()
+        self.addCleanup(scales_patcher.stop)
+        settings_patcher = patch.object(app_module, "get_settings_collection")
+        settings_patcher.start().find_one.return_value = {}
+        self.addCleanup(settings_patcher.stop)
         self.c1 = {"_id": ObjectId(), "name": "Essays", "sort_order": 0}
         self.c2 = {"_id": ObjectId(), "name": "Labs", "sort_order": 1}
         patcher = patch.object(

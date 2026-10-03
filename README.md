@@ -11,6 +11,7 @@ A web app for creating reusable feedback templates with replaceable placeholders
 - **Live placeholder detection** — Placeholders are detected as you type the template body
 - **Drag-and-drop reordering** — Rearrange templates on the home page
 - **One-click copy** — Copy generated feedback to clipboard instantly
+- **Shared ranking scales** — Define named scales, optionally rank templates, and filter by scale or rank
 - **Light, dark, or system theme** — Choose in Settings; System follows your device
 
 ## Example
@@ -71,15 +72,45 @@ Hello, Jon. Good work on your discussion. If you have any questions, feel free t
 5. Fill in the placeholder values and submit
 6. Click **Copy to Clipboard** to copy the result
 
+## Ranking templates
+
+1. Open **Rankings** and choose **+ New Scale**.
+2. Give the scale a unique name and add numbered ranks with descriptions, such
+   as `1 — Completed` and `3 — Needs work`. Numbers can have gaps; their meaning
+   is yours to define. Scales are shared across all containers.
+3. On a template's New/Edit form, choose a scale and rank, or leave it **Unranked**.
+4. Use **All rankings** on the home page to select a scale or **Unranked**.
+   Selecting a scale enables the rank filter. These work together with name,
+   container, and tag filters; **Clear** resets all filters.
+
+Copies keep their rankings. Renaming a scale or editing a rank description
+updates every template using it. A scale or rank in use cannot be deleted or
+renumbered until its templates are unranked or reassigned. Existing templates
+stay unranked automatically; no data migration is required.
+
+## Tests
+
+```bash
+python -m unittest discover -s tests -p 'test_*.py'
+npm ci
+npm test
+```
+
+Python tests replace MongoDB collection access with test fixtures and do not
+require a running database. Browser validation of rankings used isolated sample
+data; production MongoDB persistence still needs deployment verification.
+
 ## Project Structure
 
 ```
 feedback_generator/
 ├── app.py              # Flask routes and logic
 ├── database.py         # MongoDB connection helper
+├── rankings.py         # Shared scale management and validation
 ├── requirements.txt    # Python dependencies
 ├── static/
 │   ├── app.js          # Clipboard, placeholder detection, reorder JS
+│   ├── rankings.js     # Scale rows and dependent rank controls
 │   └── style.css       # Custom styles
 └── templates/          # Jinja2 HTML templates
     ├── base.html

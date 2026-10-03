@@ -12,7 +12,10 @@ from database import (
     get_templates_collection,
 )
 
+import rankings
+
 app = Flask(__name__)
+app.register_blueprint(rankings.bp)
 app.secret_key = os.environ.get("SECRET_KEY", "feedback-generator-secret-key")
 
 PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
@@ -159,6 +162,8 @@ def inject_settings():
 
 @app.route("/")
 def index():
+    """Render templates grouped by container with tag and ranking filter data."""
+    scales = rankings.list_scales()
     containers = list(get_containers_collection().find().sort("sort_order", 1))
     templates = list(get_templates_collection().find().sort("sort_order", 1))
     grouped = {}
@@ -175,6 +180,38 @@ def index():
         grouped=grouped,
         uncategorized=uncategorized,
         all_tags=_sorted_tags(t for tpl in templates for t in tpl.get("tags", [])),
+        ranking_scales=scales, ranking_options=rankings.scale_options(scales),
+        ranking_labels=rankings.ranking_labels(scales),
+    )
+
+
+def _render_template_form(template=None, submitted=None, error=None, selected=""):
+    """Render assignment controls and preserve submitted values after validation errors.
+
+    Submitted values override template values. Use selected as the fallback
+    container ID; unknown containers display as Uncategorized.
+    """
+    containers = list(get_containers_collection().find().sort("sort_order", 1))
+    scales = rankings.list_scales()
+    values = template or {}
+    if submitted is not None:
+        values = {
+            "name": submitted.get("name", ""), "body": submitted.get("body", ""),
+            "tags": _parse_tags(submitted.get("tags", "")),
+            "placeholders": _build_placeholders_from_form(submitted, submitted.get("body", "")),
+            "container_id": submitted.get("container_id", ""),
+            "ranking_scale_id": submitted.get("ranking_scale_id", ""),
+            "ranking_rank_id": submitted.get("ranking_rank_id", ""),
+        }
+    selected = str(values.get("container_id") or selected)
+    if not any(str(c["_id"]) == selected for c in containers):
+        selected = ""
+    return render_template(
+        "template_form.html", template=template, form_values=values, error=error,
+        containers=containers, selected_container_id=selected, all_tags=_all_tags(),
+        ranking_scales=scales, ranking_options=rankings.scale_options(scales),
+        selected_scale_id=str(values.get("ranking_scale_id") or ""),
+        selected_rank_id=str(values.get("ranking_rank_id") or ""),
     )
 
 
@@ -184,29 +221,29 @@ def new_template():
 
     Missing or unknown container IDs default to Uncategorized.
     """
-    containers = list(get_containers_collection().find().sort("sort_order", 1))
-    # Preselect the container when opened from a container's "add template" button.
-    selected = request.args.get("container_id", "")
-    if not any(str(c["_id"]) == selected for c in containers):
-        selected = ""
-    return render_template(
-        "template_form.html", template=None, containers=containers,
-        selected_container_id=selected, all_tags=_all_tags(),
-    )
+    return _render_template_form(selected=request.args.get("container_id", ""))
 
 
 @app.route("/templates", methods=["POST"])
 def create_template():
+    """Save a new template and redirect to the index.
+
+    Missing name/body, invalid rankings, or malformed container IDs redisplay
+    submitted values with HTTP 400 without inserting a template.
+    """
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 
-    if not name or not body:
-        flash("Name and body are required.", "danger")
-        return redirect(url_for("new_template"))
+    try:
+        if not name or not body:
+            raise ValueError("Name and body are required.")
+        ranking = rankings.template_ranking(request.form)
+        raw_cid = request.form.get("container_id", "").strip()
+        container_id = ObjectId(raw_cid) if raw_cid else None
+    except (ValueError, InvalidId) as error:
+        return _render_template_form(submitted=request.form, error=str(error)), 400
 
     placeholders = _build_placeholders_from_form(request.form, body)
-    raw_cid = request.form.get("container_id", "").strip()
-    container_id = ObjectId(raw_cid) if raw_cid else None
     now = datetime.now(timezone.utc)
 
     # New templates go to the end of the list
@@ -218,6 +255,7 @@ def create_template():
         "body": body,
         "placeholders": placeholders,
         "tags": _parse_tags(request.form.get("tags", "")),
+        **ranking,
         "container_id": container_id,
         "sort_order": next_order,
         "created_at": now,
@@ -230,28 +268,45 @@ def create_template():
 
 @app.route("/templates/<template_id>/edit")
 def edit_template(template_id):
+    """Render an existing template for editing, redirecting if it is missing.
+
+    A malformed template_id raises InvalidId rather than redirecting.
+    """
     tpl = get_templates_collection().find_one({"_id": ObjectId(template_id)})
     if not tpl:
         flash("Template not found.", "danger")
         return redirect(url_for("index"))
-    containers = list(get_containers_collection().find().sort("sort_order", 1))
-    return render_template(
-        "template_form.html", template=tpl, containers=containers, all_tags=_all_tags(),
-    )
+    return _render_template_form(template=tpl)
 
 
 @app.route("/templates/<template_id>/update", methods=["POST"])
 def update_template(template_id):
+    """Validate and save template edits, then redirect to the index.
+
+    Return HTTP 404 for a malformed or unknown template ID. Missing name/body,
+    invalid rankings, or malformed container IDs redisplay submitted values
+    with HTTP 400 without updating the template.
+    """
     name = request.form.get("name", "").strip()
     body = request.form.get("body", "").strip()
 
-    if not name or not body:
-        flash("Name and body are required.", "danger")
-        return redirect(url_for("edit_template", template_id=template_id))
+    try:
+        source_id = ObjectId(template_id)
+    except InvalidId:
+        return "Template not found", 404
+    tpl = get_templates_collection().find_one({"_id": source_id})
+    if not tpl:
+        return "Template not found", 404
+    try:
+        if not name or not body:
+            raise ValueError("Name and body are required.")
+        ranking = rankings.template_ranking(request.form)
+        raw_cid = request.form.get("container_id", "").strip()
+        container_id = ObjectId(raw_cid) if raw_cid else None
+    except (ValueError, InvalidId) as error:
+        return _render_template_form(template=tpl, submitted=request.form, error=str(error)), 400
 
     placeholders = _build_placeholders_from_form(request.form, body)
-    raw_cid = request.form.get("container_id", "").strip()
-    container_id = ObjectId(raw_cid) if raw_cid else None
 
     get_templates_collection().update_one(
         {"_id": ObjectId(template_id)},
@@ -260,6 +315,7 @@ def update_template(template_id):
             "body": body,
             "placeholders": placeholders,
             "tags": _parse_tags(request.form.get("tags", "")),
+            **ranking,
             "container_id": container_id,
             "updated_at": datetime.now(timezone.utc),
         }},
@@ -278,6 +334,7 @@ def delete_template(template_id):
 
 @app.route("/templates/<template_id>/copy", methods=["POST"])
 def copy_template(template_id):
+    """Copy a template into the requested container, retaining tags and ranking references."""
     try:
         source_id = ObjectId(template_id)
         raw_cid = request.form.get("container_id", "").strip()
@@ -308,6 +365,8 @@ def copy_template(template_id):
         "body": source["body"],
         "placeholders": [dict(ph) for ph in source["placeholders"]],
         "tags": list(source.get("tags", [])),
+        "ranking_scale_id": source.get("ranking_scale_id"),
+        "ranking_rank_id": source.get("ranking_rank_id"),
         "container_id": container_id,
         "sort_order": next_order,
         "created_at": now,
@@ -410,6 +469,7 @@ def create_container():
 
 @app.route("/containers/<container_id>/copy", methods=["POST"])
 def copy_container(container_id):
+    """Duplicate a container and its templates, retaining their shared ranking references."""
     try:
         source_id = ObjectId(container_id)
     except InvalidId:
@@ -445,6 +505,8 @@ def copy_container(container_id):
             "body": tpl["body"],
             "placeholders": [dict(ph) for ph in tpl["placeholders"]],
             "tags": list(tpl.get("tags", [])),
+            "ranking_scale_id": tpl.get("ranking_scale_id"),
+            "ranking_rank_id": tpl.get("ranking_rank_id"),
             "container_id": new_id,
             "sort_order": tpl_order + i,
             "created_at": now,

@@ -28,6 +28,10 @@ def make_tpl(container_id, body, dropdown=()):
 
 class PlaceholderMruTests(unittest.TestCase):
     def setUp(self):
+        """Reset recent values and stub settings plus templates in two containers."""
+        settings_patcher = patch.object(app_module, "get_settings_collection")
+        settings_patcher.start().find_one.return_value = {}
+        self.addCleanup(settings_patcher.stop)
         app_module._placeholder_mru.clear()
         self.c1, self.c2 = ObjectId(), ObjectId()
         self.t1 = make_tpl(self.c1, "Hi {name}, {grade}", dropdown=("grade",))

@@ -202,12 +202,14 @@ function rowTags(row) {
   }
 }
 
-/** Initialize template-name and container filtering when the controls are present. */
+/** Combine template name, container, tag, and ranking filters when present. */
 function initTemplateFilter() {
   const input = document.getElementById("templateFilter");
   const clearBtn = document.getElementById("clearFilterBtn");
   const noResults = document.getElementById("noFilterResults");
   const containerSelect = document.getElementById("containerFilter");
+  const rankingSelect = document.getElementById("rankingFilter");
+  const rankSelect = document.getElementById("rankFilter");
   const tagForm = document.getElementById("tagFilterForm");
   const tagToggle = document.getElementById("tagFilterToggle");
   const tagReset = document.getElementById("tagFilterReset");
@@ -250,14 +252,16 @@ function initTemplateFilter() {
     return item.dataset.id || "uncategorized";
   }
 
-  /** Apply the current query and container choice to templates and containers. */
+  /** Apply name, container, tag, and ranking filters to templates and containers. */
   function applyFilter() {
     const query = input.value.trim();
     const hasQuery = query.length > 0;
     const selected = containerSelect ? containerSelect.value : "";
     const hasTags = appliedTags.length > 0;
-    // Name and tag filters both narrow down to matching templates.
-    const narrowing = hasQuery || hasTags;
+    // Name, tag, and ranking filters narrow down to matching templates.
+    const ranking = rankingSelect ? rankingSelect.value : "";
+    const rank = rankSelect ? rankSelect.value : "";
+    const narrowing = hasQuery || hasTags || Boolean(ranking);
     clearBtn.classList.toggle("d-none", !narrowing && !selected);
 
     if (!narrowing && !selected) {
@@ -284,7 +288,10 @@ function initTemplateFilter() {
         const matches =
           inContainer &&
           templateMatchesFilter(row.dataset.name, query) &&
-          templateMatchesTags(rowTags(row), appliedTags);
+          templateMatchesTags(rowTags(row), appliedTags) &&
+          (!ranking || (ranking === "unranked"
+            ? !row.dataset.rankingScale
+            : row.dataset.rankingScale === ranking && (!rank || row.dataset.rankingRank === rank)));
         row.classList.toggle("d-none", !matches);
         if (matches) itemHasMatch = true;
       });
@@ -331,10 +338,15 @@ function initTemplateFilter() {
     updateTagToggle();
   }
 
-  /** Clear the query, container choice and tags, restore the list, and return focus. */
+  /** Clear all filters, restore the list, and return focus to the name query. */
   function clearFilter() {
     input.value = "";
     if (containerSelect) containerSelect.value = "";
+    if (rankingSelect) {
+      rankingSelect.value = "";
+      rankingSelect.dispatchEvent(new rankingSelect.ownerDocument.defaultView.Event("change"));
+    }
+    if (rankSelect) rankSelect.value = "";
     resetTags();
     applyFilter();
     input.focus();
@@ -343,6 +355,8 @@ function initTemplateFilter() {
   input.addEventListener("input", applyFilter);
   clearBtn.addEventListener("click", clearFilter);
   if (containerSelect) containerSelect.addEventListener("change", applyFilter);
+  if (rankingSelect) rankingSelect.addEventListener("change", applyFilter);
+  if (rankSelect) rankSelect.addEventListener("change", applyFilter);
   if (tagForm) {
     tagForm.addEventListener("submit", (event) => {
       event.preventDefault();

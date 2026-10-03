@@ -11,6 +11,10 @@ class GeneratedFeedbackMarkerTests(unittest.TestCase):
     """The browser extension finds generated feedback via this marker."""
 
     def setUp(self):
+        """Stub settings and a template, then create a client for generated-feedback checks."""
+        settings_patcher = patch.object(app_module, "get_settings_collection")
+        settings_patcher.start().find_one.return_value = {}
+        self.addCleanup(settings_patcher.stop)
         self.tpl = make_tpl(ObjectId(), "Hi {name}")
         patcher = patch.object(
             app_module, "get_templates_collection", return_value=FakeCollection([self.tpl])
