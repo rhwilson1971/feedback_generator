@@ -29,6 +29,7 @@ THEME_CHOICES = ("light", "dark", "system")
 DEFAULT_SETTINGS = {
     "disable_password_manager_autofill": False,
     "theme": "system",
+    "reopen_container_after_feedback": True,
 }
 
 # Most-recently-used placeholder values, keyed by (container_id, placeholder
@@ -588,10 +589,13 @@ def settings_page():
 
 @app.route("/settings", methods=["POST"])
 def update_settings():
+    """Save checkbox preferences and a valid theme, then return to Settings."""
     # An unchecked checkbox is absent from the form body, so absence == False.
     updates = {
         "disable_password_manager_autofill":
             "disable_password_manager_autofill" in request.form,
+        "reopen_container_after_feedback":
+            "reopen_container_after_feedback" in request.form,
     }
     theme = request.form.get("theme", "")
     if theme in THEME_CHOICES:

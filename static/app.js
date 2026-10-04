@@ -202,6 +202,27 @@ function rowTags(row) {
   }
 }
 
+/** Open the returning template's current container once, after filter setup. */
+function initReturnContainer(doc = document) {
+  const templateId = new URLSearchParams(doc.defaultView.location.search).get('return_template');
+  if (!templateId) return;
+  // Compare values rather than interpolating a URL parameter into a selector.
+  const row = Array.from(doc.querySelectorAll('.list-group-item[data-id]'))
+    .find(el => el.dataset.id === templateId);
+  const item = row?.closest('.accordion-item');
+  const collapse = item?.querySelector('.accordion-collapse');
+  if (!collapse) return;
+  collapse.classList.add('show');
+  const button = item.querySelector('.accordion-button');
+  if (button) {
+    button.classList.remove('collapsed');
+    button.setAttribute('aria-expanded', 'true');
+  }
+  const navHeight = doc.querySelector('nav.sticky-top')?.getBoundingClientRect().height || 0;
+  item.style.scrollMarginTop = `${navHeight + 16}px`;
+  item.scrollIntoView({ block: 'start', behavior: 'instant' });
+}
+
 /** Combine template name, container, tag, and ranking filters when present. */
 function initTemplateFilter() {
   const input = document.getElementById("templateFilter");
@@ -480,6 +501,7 @@ if (typeof module !== "undefined" && module.exports) {
     templateMatchesFilter,
     templateMatchesTags,
     initTemplateFilter,
+    initReturnContainer,
     initTagSuggestions,
     initCopyModal,
     initCopyContainerModal,

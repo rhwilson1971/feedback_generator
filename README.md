@@ -13,6 +13,7 @@ A web app for creating reusable feedback templates with replaceable placeholders
 - **One-click copy** — Copy generated feedback to clipboard instantly
 - **Shared ranking scales** — Define named scales, optionally rank templates, and filter by scale or rank
 - **Light, dark, or system theme** — Choose in Settings; System follows your device
+- **Return to your container** — Back to templates reopens and scrolls to the template's current container, including Uncategorized. Enabled by default; turn off “Reopen container when returning from feedback” in Settings to keep containers collapsed.
 
 ## Example
 
