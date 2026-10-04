@@ -73,6 +73,13 @@ Hello, Jon. Good work on your discussion. If you have any questions, feel free t
 5. Fill in the placeholder values and submit
 6. Click **Copy to Clipboard** to copy the result
 
+On the Generate page, edit **Feedback text** to add or change wording anywhere.
+Placeholder inputs follow the edited text; new placeholders use freeform fields.
+Choose **Use once** for one-off feedback, or **Save as a new template** and enter
+a name to keep the edited text for reuse. The new template keeps placeholder
+tokens, its source container, tags, and ranking. Generated feedback and entered
+values stay on the page so you can revise them and generate again.
+
 ## Ranking templates
 
 1. Open **Rankings** and choose **+ New Scale**.

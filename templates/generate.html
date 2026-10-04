@@ -3,6 +3,7 @@
 
 {% block content %}
 <h2 class="mb-3">Generate: {{ template.name }}</h2>
+{% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
 
 {% if result is not none %}
 <div class="card mb-4">
@@ -21,29 +22,37 @@
 {% endif %}
 
 <div class="card">
-  <div class="card-header">Fill in Placeholders</div>
+  <div class="card-header">Customize feedback</div>
   <div class="card-body">
-    <p class="text-muted small mb-3">Template: <em>{{ template.body }}</em></p>
-
     <form method="post"
           action="{{ url_for('generate_feedback', template_id=template._id) }}"
+          id="generationForm"
           {{ autofill_guard(settings) }}>
-      {% for ph in template.placeholders %}
       <div class="mb-3">
+        <label for="feedbackBody" class="form-label">Feedback text</label>
+        <textarea class="form-control" id="feedbackBody" name="body" rows="6" required
+                  aria-describedby="feedbackBodyHelp" {{ autofill_guard(settings) }}>{{ body }}</textarea>
+        <div id="feedbackBodyHelp" class="form-text">Edit the text anywhere. Use <code>{placeholder_name}</code> for replaceable fields.</div>
+      </div>
+      <h5>Fill in Placeholders</h5>
+      <div id="generationPlaceholders">
+      {% for ph in placeholders %}
+      <div class="mb-3" data-placeholder="{{ ph.name }}">
         <label for="ph_{{ ph.name }}" class="form-label">
           {{ ph.name }}
         </label>
 
         {% if ph.input_type == "dropdown" and ph.options %}
         <select class="form-select" id="ph_{{ ph.name }}" name="ph_{{ ph.name }}" required>
-          <option value="" disabled selected>Select…</option>
+          <option value="" disabled {% if not values.get(ph.name) %}selected{% endif %}>Select…</option>
           {% for opt in ph.options %}
-          <option value="{{ opt }}">{{ opt }}</option>
+          <option value="{{ opt }}"{% if values.get(ph.name) == opt %} selected{% endif %}>{{ opt }}</option>
           {% endfor %}
         </select>
         {% else %}
         <input type="text" class="form-control" id="ph_{{ ph.name }}"
                name="ph_{{ ph.name }}" required
+               value="{{ values.get(ph.name, '') }}"
                placeholder="Enter {{ ph.name }}"
                {% if suggestions[ph.name] %}list="mru_{{ ph.name }}"{% endif %}
                {{ autofill_guard(settings) }}>
@@ -57,10 +66,34 @@
         {% endif %}
       </div>
       {% endfor %}
+      </div>
+      <fieldset class="mb-3">
+        <legend class="fs-6">How would you like to use this text?</legend>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="save_mode" id="useOnce" value="once"{% if save_mode != 'save' %} checked{% endif %}>
+          <label class="form-check-label" for="useOnce">Use once</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="save_mode" id="saveTemplate" value="save"{% if save_mode == 'save' %} checked{% endif %}>
+          <label class="form-check-label" for="saveTemplate">Save as a new template</label>
+        </div>
+      </fieldset>
+      <div class="mb-3" id="newTemplateNameGroup"{% if save_mode != 'save' %} hidden{% endif %}>
+        <label for="newTemplateName" class="form-label">New template name</label>
+        <input class="form-control" id="newTemplateName" name="new_template_name" value="{{ new_template_name }}"{% if save_mode == 'save' %} required{% endif %} {{ autofill_guard(settings) }}>
+        <div class="form-text">Keeps this template's container, tags, and ranking.</div>
+      </div>
 
       <button type="submit" class="btn btn-success">Generate Feedback</button>
       <a href="{{ url_for('index', return_template=template._id|string) if settings.reopen_container_after_feedback else url_for('index') }}" class="btn btn-outline-secondary ms-2">Back to templates</a>
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='generate.js') }}"></script>
+<script>
+  initCustomFeedback(document, {{ template.placeholders | tojson }}, {{ suggestions | tojson }}, {{ settings.disable_password_manager_autofill | tojson }});
+</script>
 {% endblock %}
