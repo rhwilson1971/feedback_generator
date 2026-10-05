@@ -3,7 +3,7 @@
 {% block content %}
 <h2 class="mb-3">Settings</h2>
 
-<form method="post" action="{{ url_for('update_settings') }}">
+<form method="post" action="{{ url_for('update_settings') }}" data-unsaved-form>
   <div class="card mb-4">
     <div class="card-header">Appearance</div>
     <div class="card-body">

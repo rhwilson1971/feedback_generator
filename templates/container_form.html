@@ -4,7 +4,7 @@
 {% block content %}
 <h2 class="mb-3">{{ "Edit" if container else "New" }} Container</h2>
 
-<form method="post"
+<form method="post" data-unsaved-form
       action="{{ url_for('update_container', container_id=container._id) if container else url_for('create_container') }}"
       {{ autofill_guard(settings) }}>
 
