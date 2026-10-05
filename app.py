@@ -384,9 +384,30 @@ def generate_form(template_id):
     if not tpl:
         flash("Template not found.", "danger")
         return redirect(url_for("index"))
+    return _render_generation(tpl, tpl["body"])
+
+
+def _generation_placeholders(tpl, body):
+    """Derive draft fields while retaining saved configurations by name."""
+    existing = {ph["name"]: ph for ph in tpl["placeholders"]}
+    return [
+        {**existing.get(name, {"name": name, "input_type": "freeform", "options": []}),
+         "display_order": i}
+        for i, name in enumerate(_parse_placeholders_from_body(body))
+    ]
+
+
+def _render_generation(tpl, body, values=None, result=None, error=None,
+                       save_mode="once", new_template_name=None):
+    """Render a draft independently of the stored template's identity and body."""
+    placeholders = _generation_placeholders(tpl, body)
+    suggestion_fields = {ph["name"]: ph for ph in [*tpl["placeholders"], *placeholders]}
     return render_template(
-        "generate.html", template=tpl, result=None,
-        suggestions=placeholder_suggestions(tpl),
+        "generate.html", template=tpl, body=body, placeholders=placeholders,
+        values=values or {}, result=result, error=error, save_mode=save_mode,
+        new_template_name=(new_template_name if new_template_name is not None
+                           else f"{tpl['name']} Custom"),
+        suggestions=placeholder_suggestions({**tpl, "placeholders": list(suggestion_fields.values())}),
     )
 
 
@@ -397,17 +418,49 @@ def generate_feedback(template_id):
         flash("Template not found.", "danger")
         return redirect(url_for("index"))
 
-    result = tpl["body"]
-    for ph in tpl["placeholders"]:
-        value = request.form.get(f"ph_{ph['name']}", "")
-        result = result.replace("{" + ph["name"] + "}", value)
+    body = request.form.get("body", tpl["body"])
+    placeholders = _generation_placeholders(tpl, body)
+    values = {ph["name"]: request.form.get(f"ph_{ph['name']}", "") for ph in placeholders}
+    save_mode = request.form.get("save_mode", "once")
+    name = request.form.get("new_template_name", "")
+    error = None
+    if not body.strip():
+        error = "Feedback text is required."
+    elif save_mode not in ("once", "save"):
+        error = "Choose Use once or Save as a new template."
+    elif save_mode == "save" and not name.strip():
+        error = "A name is required for the new template."
+    else:
+        missing = [key for key, value in values.items() if not value.strip()]
+        if missing:
+            error = "Enter a value for: " + ", ".join(missing) + "."
+    if error:
+        return _render_generation(tpl, body, values, error=error,
+                                  save_mode=save_mode, new_template_name=name), 400
+
+    result = PLACEHOLDER_RE.sub(lambda match: values[match.group(1)], body)
+    if save_mode == "save":
+        now = datetime.now(timezone.utc)
+        col = get_templates_collection()
+        last = col.find_one(sort=[("sort_order", -1)])
+        saved = {
+            "name": name.strip(), "body": body, "placeholders": placeholders,
+            "tags": list(tpl.get("tags", [])), "container_id": tpl.get("container_id"),
+            "ranking_scale_id": tpl.get("ranking_scale_id"),
+            "ranking_rank_id": tpl.get("ranking_rank_id"),
+            "sort_order": last.get("sort_order", -1) + 1 if last else 0,
+            "created_at": now, "updated_at": now,
+        }
+        saved["_id"] = col.insert_one(saved).inserted_id
+        tpl = saved
+        flash("New template saved!", "success")
+
+    for ph in placeholders:
+        value = values[ph["name"]]
         if ph.get("input_type") != "dropdown":
             remember_placeholder_value(tpl.get("container_id"), ph["name"], value)
 
-    return render_template(
-        "generate.html", template=tpl, result=result,
-        suggestions=placeholder_suggestions(tpl),
-    )
+    return _render_generation(tpl, body, values, result=result)
 
 
 @app.route("/templates/reorder", methods=["POST"])
