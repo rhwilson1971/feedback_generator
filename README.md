@@ -80,6 +80,12 @@ a name to keep the edited text for reuse. The new template keeps placeholder
 tokens, its source container, tags, and ranking. Generated feedback and entered
 values stay on the page so you can revise them and generate again.
 
+Changed template, container, ranking, settings, and feedback forms warn before
+you leave, refresh, or close the tab. Choose to stay to keep editing or leave to
+discard the draft. Restoring the initial values clears the warning; normal Save
+and Generate submissions proceed without it. The browser controls the warning
+wording and may omit it in some mobile situations. Drafts are not autosaved.
+
 ## Ranking templates
 
 1. Open **Rankings** and choose **+ New Scale**.

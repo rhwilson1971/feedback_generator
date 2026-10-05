@@ -3,7 +3,7 @@
 {% block content %}
 <h2 class="mb-3">{{ 'Edit' if scale else 'New' }} Ranking Scale</h2>
 {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
-<form method="post" action="{{ url_for('rankings.update', scale_id=scale._id) if scale else url_for('rankings.create') }}" id="rankingScaleForm" {{ autofill_guard(settings) }}>
+<form method="post" action="{{ url_for('rankings.update', scale_id=scale._id) if scale else url_for('rankings.create') }}" id="rankingScaleForm" data-unsaved-form {{ autofill_guard(settings) }}>
   <div class="mb-3">
     <label for="scaleName" class="form-label">Scale name</label>
     <input id="scaleName" class="form-control" name="name" value="{{ values.name }}" placeholder="e.g. Completion" required {{ autofill_guard(settings) }}>

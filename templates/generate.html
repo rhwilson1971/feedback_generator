@@ -24,7 +24,7 @@
 <div class="card">
   <div class="card-header">Customize feedback</div>
   <div class="card-body">
-    <form method="post"
+    <form method="post" data-unsaved-form
           action="{{ url_for('generate_feedback', template_id=template._id) }}"
           id="generationForm"
           {{ autofill_guard(settings) }}>
@@ -80,7 +80,7 @@
       </fieldset>
       <div class="mb-3" id="newTemplateNameGroup"{% if save_mode != 'save' %} hidden{% endif %}>
         <label for="newTemplateName" class="form-label">New template name</label>
-        <input class="form-control" id="newTemplateName" name="new_template_name" value="{{ new_template_name }}"{% if save_mode == 'save' %} required{% endif %} {{ autofill_guard(settings) }}>
+        <input class="form-control" id="newTemplateName" name="new_template_name" data-unsaved-ignore-if="#useOnce:checked" value="{{ new_template_name }}"{% if save_mode == 'save' %} required{% endif %} {{ autofill_guard(settings) }}>
         <div class="form-text">Keeps this template's container, tags, and ranking.</div>
       </div>
 

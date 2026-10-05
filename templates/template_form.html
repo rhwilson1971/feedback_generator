@@ -6,7 +6,7 @@
 
 {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
 
-<form method="post"
+<form method="post" data-unsaved-form
       action="{{ url_for('update_template', template_id=template._id) if template else url_for('create_template') }}"
       id="templateForm"
       {{ autofill_guard(settings) }}>
