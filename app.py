@@ -13,8 +13,10 @@ from database import (
 )
 
 import rankings
+from availability import register_availability
 
 app = Flask(__name__)
+register_availability(app)
 app.register_blueprint(rankings.bp)
 app.secret_key = os.environ.get("SECRET_KEY", "feedback-generator-secret-key")
 
@@ -328,6 +330,7 @@ def update_template(template_id):
 
 @app.route("/templates/<template_id>/delete", methods=["POST"])
 def delete_template(template_id):
+    """Delete template_id and redirect to the template list."""
     get_templates_collection().delete_one({"_id": ObjectId(template_id)})
     flash("Template deleted.", "success")
     return redirect(url_for("index"))
@@ -380,6 +383,7 @@ def copy_template(template_id):
 
 @app.route("/templates/<template_id>/generate")
 def generate_form(template_id):
+    """Load template_id and render its feedback generation form."""
     tpl = get_templates_collection().find_one({"_id": ObjectId(template_id)})
     if not tpl:
         flash("Template not found.", "danger")
@@ -413,6 +417,7 @@ def _render_generation(tpl, body, values=None, result=None, error=None,
 
 @app.route("/templates/<template_id>/generate", methods=["POST"])
 def generate_feedback(template_id):
+    """Generate feedback for template_id from submitted values, optionally saving a new template."""
     tpl = get_templates_collection().find_one({"_id": ObjectId(template_id)})
     if not tpl:
         flash("Template not found.", "danger")
@@ -465,6 +470,7 @@ def generate_feedback(template_id):
 
 @app.route("/templates/reorder", methods=["POST"])
 def reorder_templates():
+    """Persist the submitted JSON template order and return its status."""
     order = request.get_json()
     if not order or not isinstance(order, list):
         return jsonify({"error": "Invalid data"}), 400
@@ -485,6 +491,7 @@ def reorder_templates():
 
 @app.route("/categories")
 def list_categories():
+    """Return distinct container categories as sorted JSON."""
     col = get_containers_collection()
     categories = col.distinct("category")
     return jsonify(sorted(categories))
@@ -492,12 +499,14 @@ def list_categories():
 
 @app.route("/containers/new")
 def new_container():
+    """Render the new container form with existing category choices."""
     categories = get_containers_collection().distinct("category")
     return render_template("container_form.html", container=None, categories=categories)
 
 
 @app.route("/containers", methods=["POST"])
 def create_container():
+    """Validate submitted fields, insert a container, and redirect."""
     name = request.form.get("name", "").strip()
     category = request.form.get("category", "").strip() or "Default"
 
@@ -577,6 +586,7 @@ def copy_container(container_id):
 
 @app.route("/containers/<container_id>/edit")
 def edit_container(container_id):
+    """Load container_id and render its editing form."""
     ctr = get_containers_collection().find_one({"_id": ObjectId(container_id)})
     if not ctr:
         flash("Container not found.", "danger")
@@ -587,6 +597,7 @@ def edit_container(container_id):
 
 @app.route("/containers/<container_id>/update", methods=["POST"])
 def update_container(container_id):
+    """Validate submitted fields and update container_id before redirecting."""
     name = request.form.get("name", "").strip()
     category = request.form.get("category", "").strip() or "Default"
 
@@ -609,6 +620,7 @@ def update_container(container_id):
 
 @app.route("/containers/<container_id>/delete", methods=["POST"])
 def delete_container(container_id):
+    """Delete container_id and move its templates to Uncategorized."""
     get_containers_collection().delete_one({"_id": ObjectId(container_id)})
     get_templates_collection().update_many(
         {"container_id": ObjectId(container_id)},
@@ -620,6 +632,7 @@ def delete_container(container_id):
 
 @app.route("/containers/reorder", methods=["POST"])
 def reorder_containers():
+    """Persist the submitted JSON container order and return its status."""
     order = request.get_json()
     if not order or not isinstance(order, list):
         return jsonify({"error": "Invalid data"}), 400
@@ -637,6 +650,7 @@ def reorder_containers():
 
 @app.route("/settings")
 def settings_page():
+    """Render the application settings form."""
     return render_template("settings.html")
 
 

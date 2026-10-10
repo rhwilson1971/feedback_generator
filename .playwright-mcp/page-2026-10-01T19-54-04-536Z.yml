@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Feedback Generator" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]:
+        - link "+ New Container" [ref=e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=e11]:
+    - heading "Your Templates" [level=2] [ref=e13]
+    - generic [ref=e14]:
+      - combobox "Filter by container" [ref=e15]:
+        - option "All containers" [selected]
+        - option "Essay Feedback"
+      - combobox "Filter by ranking scale" [ref=e16]:
+        - option "All rankings" [selected]
+        - option "Unranked"
+        - option "Completion"
+      - combobox "Filter by rank" [disabled] [ref=e17]:
+        - option "All ranks" [selected]
+      - textbox "Filter by template name..." [ref=e18]
+      - button "Tags" [ref=e20] [cursor=pointer]
+    - generic [ref=e22]:
+      - heading "☰ Essay Feedback Writing 3 templates Add template to this container Edit container Copy container Delete container" [level=2] [ref=e23]:
+        - generic [ref=e24]:
+          - generic "Drag to reorder" [ref=e25]: ☰
+          - button "Essay Feedback Writing 3 templates" [ref=e26] [cursor=pointer]:
+            - text: Essay Feedback
+            - generic [ref=e27]: Writing
+            - generic [ref=e28]: 3 templates
+          - generic [ref=e29]:
+            - link "Add template to this container" [ref=e30] [cursor=pointer]:
+              - /url: /templates/new?container_id=6abeba23a5860963734a713c
+              - generic [ref=e31]: +
+            - link "Edit container" [ref=e32] [cursor=pointer]:
+              - /url: /containers/6abeba23a5860963734a713c/edit
+              - generic [ref=e33]: 
+            - button "Copy container" [ref=e34] [cursor=pointer]:
+              - generic [ref=e35]: 
+            - button "Delete container" [ref=e37] [cursor=pointer]:
+              - generic [ref=e38]: 
+      - text:         

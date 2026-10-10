@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Feedback Generator" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]:
+        - link "+ New Container" [ref=e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=e11]:
+    - 'heading "Generate: Practice feedback" [level=2] [ref=e12]'
+    - generic [ref=e13]:
+      - generic [ref=e14]: Customize feedback
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Feedback text
+          - textbox "Feedback text" [ref=e19]: "Hi {name}, {grade} work."
+          - generic [ref=e20]:
+            - text: Edit the text anywhere. Use
+            - code [ref=e21]: "{placeholder_name}"
+            - text: for replaceable fields.
+        - heading "Fill in Placeholders" [level=5] [ref=e22]
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]: name
+            - textbox "name" [ref=e26]:
+              - /placeholder: Enter name
+          - generic [ref=e27]:
+            - generic [ref=e28]: grade
+            - combobox "grade" [ref=e29]:
+              - option "Select…" [disabled] [selected]
+              - option "Good"
+              - option "Great"
+        - group "How would you like to use this text?" [ref=e30]:
+          - generic [ref=e32]:
+            - radio "Use once" [checked] [ref=e33]
+            - generic [ref=e34]: Use once
+          - generic [ref=e35]:
+            - radio "Save as a new template" [ref=e36]
+            - generic [ref=e37]: Save as a new template
+        - button "Generate Feedback" [ref=e38] [cursor=pointer]
+        - link "Back to templates" [ref=e39] [cursor=pointer]:
+          - /url: /?return_template=000000000000000000000135

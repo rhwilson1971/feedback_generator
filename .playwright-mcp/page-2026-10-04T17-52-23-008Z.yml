@@ -1,0 +1,58 @@
+- generic [ref=f1e1]:
+  - navigation [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "Feedback Generator" [ref=f1e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f1e6]:
+        - link "+ New Container" [ref=f1e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=f1e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=f1e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=f1e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=f1e11]:
+    - 'heading "Generate: Practice feedback" [level=2] [ref=f1e12]'
+    - generic [ref=f1e13]:
+      - generic [ref=f1e14]:
+        - strong [ref=f1e15]: Generated Feedback
+        - button "Copied!" [active] [ref=f1e51] [cursor=pointer]
+      - textbox [ref=f1e18]: "Hi Ana, Great work. Next: Keep practicing."
+    - link "Generate Another" [ref=f1e19] [cursor=pointer]:
+      - /url: /templates/000000000000000000000135/generate
+    - separator [ref=f1e20]
+    - generic [ref=f1e21]:
+      - generic [ref=f1e22]: Customize feedback
+      - generic [ref=f1e24]:
+        - generic [ref=f1e25]:
+          - generic [ref=f1e26]: Feedback text
+          - textbox "Feedback text" [ref=f1e27]: "Hi {name}, {grade} work. Next: {next}"
+          - generic [ref=f1e28]:
+            - text: Edit the text anywhere. Use
+            - code [ref=f1e29]: "{placeholder_name}"
+            - text: for replaceable fields.
+        - heading "Fill in Placeholders" [level=5] [ref=f1e30]
+        - generic [ref=f1e31]:
+          - generic [ref=f1e32]:
+            - generic [ref=f1e33]: name
+            - combobox "name" [ref=f1e34]: Ana
+          - generic [ref=f1e35]:
+            - generic [ref=f1e36]: grade
+            - combobox "grade" [ref=f1e37]:
+              - option "Select…" [disabled]
+              - option "Good"
+              - option "Great" [selected]
+          - generic [ref=f1e38]:
+            - generic [ref=f1e39]: next
+            - combobox "next" [ref=f1e40]: Keep practicing.
+        - group "How would you like to use this text?" [ref=f1e41]:
+          - generic [ref=f1e43]:
+            - radio "Use once" [checked] [ref=f1e44]
+            - generic [ref=f1e45]: Use once
+          - generic [ref=f1e46]:
+            - radio "Save as a new template" [ref=f1e47]
+            - generic [ref=f1e48]: Save as a new template
+        - button "Generate Feedback" [ref=f1e49] [cursor=pointer]
+        - link "Back to templates" [ref=f1e50] [cursor=pointer]:
+          - /url: /?return_template=000000000000000000000135

@@ -1,0 +1,38 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Feedback Generator" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]:
+        - link "+ New Container" [ref=e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - heading "Ranking Scales" [level=2] [ref=e13]
+      - link "+ New Scale" [ref=e14] [cursor=pointer]:
+        - /url: /rankings/new
+    - paragraph [ref=e15]: Define scales once and use them across any container. Templates can also stay unranked.
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - strong [ref=e18]: Completion
+        - generic [ref=e19]: 5 templates
+      - generic [ref=e20]:
+        - list [ref=e21]:
+          - listitem [ref=e22]:
+            - strong [ref=e23]: "1"
+            - text: — Completed
+          - listitem [ref=e24]:
+            - strong [ref=e25]: "3"
+            - text: — Needs work
+        - generic [ref=e26]:
+          - link "Edit" [ref=e27] [cursor=pointer]:
+            - /url: /rankings/6abeba23a5860963734a713b/edit
+          - generic [ref=e28]:
+            - button "Delete" [disabled]
+        - paragraph [ref=e29]: Unrank or reassign its templates before deleting this scale.
