@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>We'll be right back — Feedback Generator</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f6f7fb; color: #202638; }
+    main { box-sizing: border-box; width: min(100%, 36rem); padding: 3rem 1.5rem; text-align: center; }
+    .brand { font-size: .9rem; font-weight: 600; color: #657087; }
+    h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.2; }
+    p { line-height: 1.65; }
+    a { display: inline-block; margin-top: 1rem; padding: .8rem 1.4rem; border-radius: .5rem; background: #3458c5; color: white; text-decoration: none; font-weight: 600; }
+    a:focus-visible { outline: 3px solid #7894ef; outline-offset: 4px; }
+    @media (prefers-color-scheme: dark) { body { background: #161b26; color: #eef1f8; } .brand { color: #aab5ca; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">Feedback Generator</p>
+    <h1>We&#39;ll be right back</h1>
+    <p>We're having trouble connecting right now.<br>Please try again in a moment.</p>
+    <a href="{{ retry_url }}">Try again</a>
+  </main>
+</body>
+</html>

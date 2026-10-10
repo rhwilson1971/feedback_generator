@@ -1,0 +1,50 @@
+- generic [active] [ref=f4e1]:
+  - navigation [ref=f4e2]:
+    - generic [ref=f4e3]:
+      - link "Feedback Generator" [ref=f4e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f4e6]:
+        - link "+ New Container" [ref=f4e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=f4e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=f4e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=f4e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=f4e11]:
+    - 'heading "Generate: Custom practice" [level=2] [ref=f4e12]'
+    - generic [ref=f4e13]:
+      - generic [ref=f4e14]: Customize feedback
+      - generic [ref=f4e16]:
+        - generic [ref=f4e17]:
+          - generic [ref=f4e18]: Feedback text
+          - textbox "Feedback text" [ref=f4e19]: "Hi {name}, {grade} work. Next: {next}"
+          - generic [ref=f4e20]:
+            - text: Edit the text anywhere. Use
+            - code [ref=f4e21]: "{placeholder_name}"
+            - text: for replaceable fields.
+        - heading "Fill in Placeholders" [level=5] [ref=f4e22]
+        - generic [ref=f4e23]:
+          - generic [ref=f4e24]:
+            - generic [ref=f4e25]: name
+            - combobox "name" [ref=f4e26]
+          - generic [ref=f4e27]:
+            - generic [ref=f4e28]: grade
+            - combobox "grade" [ref=f4e29]:
+              - option "Select…" [disabled] [selected]
+              - option "Good"
+              - option "Great"
+          - generic [ref=f4e30]:
+            - generic [ref=f4e31]: next
+            - combobox "next" [ref=f4e32]
+        - group "How would you like to use this text?" [ref=f4e33]:
+          - generic [ref=f4e35]:
+            - radio "Use once" [checked] [ref=f4e36]
+            - generic [ref=f4e37]: Use once
+          - generic [ref=f4e38]:
+            - radio "Save as a new template" [ref=f4e39]
+            - generic [ref=f4e40]: Save as a new template
+        - button "Generate Feedback" [ref=f4e41] [cursor=pointer]
+        - link "Back to templates" [ref=f4e42] [cursor=pointer]:
+          - /url: /?return_template=6ac293636804b0335656f5f4

@@ -1,0 +1,80 @@
+- generic [active] [ref=f3e1]:
+  - navigation [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - link "Feedback Generator" [ref=f3e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f3e6]:
+        - link "+ New Container" [ref=f3e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=f3e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=f3e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=f3e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=f3e11]:
+    - heading "Your Templates" [level=2] [ref=f3e13]
+    - generic [ref=f3e14]:
+      - combobox "Filter by container" [ref=f3e15]:
+        - option "All containers" [selected]
+        - option "FG-35 Preview"
+      - combobox "Filter by ranking scale" [ref=f3e16]:
+        - option "All rankings" [selected]
+        - option "Unranked"
+      - combobox "Filter by rank" [disabled] [ref=f3e17]:
+        - option "All ranks" [selected]
+      - textbox "Filter by template name..." [ref=f3e18]
+      - button "Tags" [ref=f3e20] [cursor=pointer]
+    - generic [ref=f3e22]:
+      - heading "☰ FG-35 Preview 2 templates Add template to this container Edit container Copy container Delete container" [level=2] [ref=f3e23]:
+        - generic [ref=f3e24]:
+          - generic "Drag to reorder" [ref=f3e25]: ☰
+          - button "FG-35 Preview 2 templates" [expanded] [ref=f3e26] [cursor=pointer]:
+            - text: FG-35 Preview
+            - generic [ref=f3e28]: 2 templates
+          - generic [ref=f3e29]:
+            - link "Add template to this container" [ref=f3e30] [cursor=pointer]:
+              - /url: /templates/new?container_id=000000000000000000000035
+              - generic [ref=f3e31]: +
+            - link "Edit container" [ref=f3e32] [cursor=pointer]:
+              - /url: /containers/000000000000000000000035/edit
+              - generic [ref=f3e33]: 
+            - button "Copy container" [ref=f3e34] [cursor=pointer]:
+              - generic [ref=f3e35]: 
+            - button "Delete container" [ref=f3e37] [cursor=pointer]:
+              - generic [ref=f3e38]: 
+      - generic [ref=f3e41]:
+        - generic [ref=f3e42]:
+          - generic "Drag to reorder" [ref=f3e43]: ☰
+          - generic [ref=f3e44]:
+            - heading "Practice feedback" [level=5] [ref=f3e45]
+            - paragraph [ref=f3e46]: "Hi {name}, {grade} work."
+            - text: 2 placeholders
+            - generic [ref=f3e47]: practice
+          - generic [ref=f3e48]:
+            - link "Generate" [ref=f3e49] [cursor=pointer]:
+              - /url: /templates/000000000000000000000135/generate
+            - link "Edit template" [ref=f3e50] [cursor=pointer]:
+              - /url: /templates/000000000000000000000135/edit
+              - generic [ref=f3e51]: 
+            - button "Copy template" [ref=f3e52] [cursor=pointer]:
+              - generic [ref=f3e53]: 
+            - button "Delete template" [ref=f3e55] [cursor=pointer]:
+              - generic [ref=f3e56]: 
+        - generic [ref=f3e57]:
+          - generic "Drag to reorder" [ref=f3e58]: ☰
+          - generic [ref=f3e59]:
+            - heading "Custom practice" [level=5] [ref=f3e60]
+            - paragraph [ref=f3e61]: "Hi {name}, {grade} work. Next: {next}"
+            - text: 3 placeholders
+            - generic [ref=f3e62]: practice
+          - generic [ref=f3e63]:
+            - link "Generate" [ref=f3e64] [cursor=pointer]:
+              - /url: /templates/6ac293636804b0335656f5f4/generate
+            - link "Edit template" [ref=f3e65] [cursor=pointer]:
+              - /url: /templates/6ac293636804b0335656f5f4/edit
+              - generic [ref=f3e66]: 
+            - button "Copy template" [ref=f3e67] [cursor=pointer]:
+              - generic [ref=f3e68]: 
+            - button "Delete template" [ref=f3e70] [cursor=pointer]:
+              - generic [ref=f3e71]: 

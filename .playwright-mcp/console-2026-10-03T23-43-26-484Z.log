@@ -1,0 +1,25 @@
+[    8770ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ https://sports.yahoo.com/:0
+[    9094ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ :0
+[    9096ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ :0
+[    9097ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ :0
+[    9157ms] [WARNING] no consent map @ https://s.yimg.com/du/benji/benji-2.3.428.js:0
+[    9190ms] [WARNING] Failed to execute 'write' on 'Document': It isn't possible to write into a document from an asynchronously-loaded external script unless it is explicitly opened. @ :0
+[    9214ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ :0
+[    9313ms] [WARNING] [GPT] PubAdsService.setTargeting is deprecated, use googletag.setConfig({targeting: ...}) instead.
+https://goo.gle/gpt-message#170 @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[    9355ms] [WARNING] [GPT] Slot.getTargetingKeys is deprecated, use Slot.getConfig('targeting') instead.
+https://goo.gle/gpt-message#201 @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   11197ms] [WARNING] Attribute name "loggedIn" formatted to "loggedin" to comply with naming standards @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   11198ms] [WARNING] Attribute name "osName" formatted to "osname" to comply with naming standards @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   11198ms] [WARNING] Attribute name "requestStartTime" formatted to "requeststarttime" to comply with naming standards @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   11198ms] [WARNING] Attribute name "robotType" formatted to "robottype" to comply with naming standards @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   12313ms] [WARNING] VIDEOJS: WARN: videojs.mergeOptions is deprecated and will be removed in 9.0; please use videojs.obj.merge instead. @ https://players.brightcove.net/6415665815001/VSckao7ImZ_default/index.min.js:0
+[   12521ms] [ERROR] VIDEOJS: ERROR: An error with Ads occured. Type: ads-before-preroll-error. @ https://players.brightcove.net/6415665815001/VSckao7ImZ_default/index.min.js:0
+[   13060ms] [WARNING] VIDEOJS: WARN: Using the tech directly can be dangerous. I hope you know what you're doing.
+See https://github.com/videojs/video.js/issues/2617 for more info.
+ @ https://players.brightcove.net/6415665815001/VSckao7ImZ_default/index.min.js:0
+[   51528ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ :0
+[   51635ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://pxl.connexity.net/c/cse?a=R&A=22c&D=569a&V=9&I0k=ptnrid&I0v=us-e9d78c12-cad5-4da0-be56-909b47a10331-tuct11bb18a8:0
+[   80135ms] [WARNING] Response contains unsupported feature: ad-refresh @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[   88410ms] [WARNING] Response contains unsupported feature: ad-refresh @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204
+[  104396ms] [WARNING] Response contains unsupported feature: ad-refresh @ https://s.yimg.com/du/ay/wnsrvbjmeprtfrnfx.js:204

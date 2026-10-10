@@ -1,0 +1,58 @@
+- generic [active] [ref=f3e1]:
+  - navigation [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - link "Feedback Generator" [ref=f3e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f3e6]:
+        - link "+ New Container" [ref=f3e7] [cursor=pointer]:
+          - /url: /containers/new
+        - link "+ New Template" [ref=f3e8] [cursor=pointer]:
+          - /url: /templates/new
+        - link "Rankings" [ref=f3e9] [cursor=pointer]:
+          - /url: /rankings
+        - link "Settings" [ref=f3e10] [cursor=pointer]:
+          - /url: /settings
+  - main [ref=f3e11]:
+    - heading "New Template" [level=2] [ref=f3e12]
+    - generic [ref=f3e13]:
+      - generic [ref=f3e14]:
+        - generic [ref=f3e15]: Template Name
+        - textbox "Template Name" [ref=f3e16]
+      - generic [ref=f3e17]:
+        - generic [ref=f3e18]: Container
+        - combobox "Container" [ref=f3e19]:
+          - option "None (Uncategorized)" [selected]
+          - option "FG-35 Preview"
+      - generic [ref=f3e20]:
+        - generic [ref=f3e21]: Tags
+        - textbox "Tags" [ref=f3e22]:
+          - /placeholder: e.g. praise, late work
+        - generic [ref=f3e23]: Separate tags with commas.
+        - button "practice" [ref=f3e25] [cursor=pointer]
+      - generic [ref=f3e26]:
+        - generic [ref=f3e27]:
+          - generic [ref=f3e28]: Ranking scale (optional)
+          - combobox "Ranking scale (optional)" [ref=f3e29]:
+            - option "Unranked" [selected]
+          - link "Manage shared ranking scales" [ref=f3e31] [cursor=pointer]:
+            - /url: /rankings
+        - generic [ref=f3e32]:
+          - generic [ref=f3e33]: Rank
+          - combobox "Rank" [disabled] [ref=f3e34]:
+            - option "Choose a rank…" [selected]
+      - generic [ref=f3e35]:
+        - generic [ref=f3e36]: Template Body
+        - textbox "Template Body" [ref=f3e37]:
+          - /placeholder: "e.g. Hello, {name}. {assessment} work on your discussion."
+        - generic [ref=f3e38]:
+          - text: Use
+          - code [ref=f3e39]: "{placeholder_name}"
+          - text: for replaceable fields.
+      - separator [ref=f3e40]
+      - heading "Placeholder Configuration" [level=5] [ref=f3e41]
+      - paragraph [ref=f3e42]: Placeholders detected from the body appear below. Configure each as freeform text or a dropdown with options.
+      - paragraph [ref=f3e44]: No placeholders detected yet.
+      - generic [ref=f3e45]:
+        - button "Create Template" [ref=f3e46] [cursor=pointer]
+        - link "Cancel" [ref=f3e47] [cursor=pointer]:
+          - /url: /
