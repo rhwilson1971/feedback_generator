@@ -102,6 +102,34 @@ updates every template using it. A scale or rank in use cannot be deleted or
 renumbered until its templates are unranked or reassigned. Existing templates
 stay unranked automatically; no data migration is required.
 
+## Backing up and moving data
+
+All app data lives in the `feedback_generator` MongoDB database (`templates`,
+`containers`, `ranking_scales`, `settings`). To export it from a local Docker
+container into a single compressed archive:
+
+```bash
+docker ps   # find the Mongo container name
+docker exec <container> mongodump --db feedback_generator --archive --gzip \
+  > feedback_generator-$(date +%Y%m%d).archive.gz
+```
+
+To import into another MongoDB instance:
+
+```bash
+# Target running in Docker
+docker exec -i <container> mongorestore --archive --gzip \
+  < feedback_generator-YYYYMMDD.archive.gz
+
+# Target reachable directly (requires MongoDB Database Tools)
+mongorestore --uri "mongodb://<host>:27017" --gzip \
+  --archive=feedback_generator-YYYYMMDD.archive.gz
+```
+
+Add `--drop` to replace existing collections instead of merging into them, or
+`--nsFrom 'feedback_generator.*' --nsTo '<newdb>.*'` to restore under a
+different database name. Archives are git-ignored; don't commit them.
+
 ## Tests
 
 ```bash
