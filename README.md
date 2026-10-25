@@ -62,7 +62,7 @@ Hello, Jon. Good work on your discussion. If you have any questions, feel free t
    python app.py
    ```
 
-5. **Open** [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
+5. **Open** [http://127.0.0.1:5010](http://127.0.0.1:5010) in your browser.
 
 ## Usage
 
